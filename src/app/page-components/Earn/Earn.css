@@ -1,0 +1,9 @@
+.coin {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .coin.pressed {
+    transform: scale(0.9) translateY(2px); /* Simulates a slight press */
+  }
+  

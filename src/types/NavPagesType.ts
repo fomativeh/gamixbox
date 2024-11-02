@@ -1,0 +1,1 @@
+export type NavPagesType = "Earns" | "Boost" | "Tasks" | "Friends"
