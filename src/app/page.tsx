@@ -97,7 +97,6 @@ export default function Home() {
       {currentPage == "Friends" && <Friends />}
       {currentPage == "Earns" && <Earn setBalance={setBalance} />}
       {currentPage =="Tasks" && <Tasks/>}
-      {currentPage =="Tasks" && <Tasks/>}
       {currentPage =="Boost" && <Boost/>}
       <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
     </main>

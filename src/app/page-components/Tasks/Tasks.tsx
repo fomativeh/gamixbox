@@ -13,7 +13,7 @@ const TaskCard = ({
   return (
     <section className="z-[1] w-full mb-[13px] blur-bg rounded-[8px] px-[20px] py-[12px] flex justify-between items-center">
       <section className="flex justify-start items-center">
-        <figure className="w-[44px] h-[44px] relative mr-[15px] rounded-[50px]">
+        <figure className="w-[34px] h-[34px] relative mr-[15px] rounded-[50px]">
           <Image src={image} alt="Task image" fill />
         </figure>
 
@@ -31,27 +31,27 @@ const TaskCard = ({
           </section>
         </section>
       </section>
-      {status == "Undone" && <span className="font-semibold">GO</span>}
+      {status == "Undone" && <span className="font-semibold text-[12px]">GO</span>}
 
       {status == "Ongoing" && (
-        <span className="font-semibold bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]">
+        <span className="font-semibold text-[12px] bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]">
           Verify
         </span>
       )}
 
-      {status == "Done" && <span className="font-semibold">Done</span>}
+      {status == "Done" && <span className="font-semibold text-[12px]">Done</span>}
     </section>
   );
 };
 
 const Tasks = () => {
   return (
-    <main className="w-full h-[100vh] flex flex-col items-center justify-start pt-[30px] px-[30px] font-[Lexend] text-[white] overflow-y-auto">
-      <figure className="w-[140px] h-[140px] min-h-[140px] min-w-[140px] relative mb-[20px]">
+    <main className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col items-center justify-start pt-[30px] px-[30px] font-[Lexend] text-[white]">
+      <figure className="w-[140px] h-[140px] relative mb-[20px]">
         <Image src="/assets/images/level-1.svg" alt="Coin image" fill />
       </figure>
 
-      <p className="font-semibold text-[30px] mb-[35px] text-center">
+      <p className="font-semibold text-[20px] max-w-[70%] mb-[35px] text-center">
         Earn more by complete the following tasks
       </p>
 

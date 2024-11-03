@@ -60,7 +60,7 @@ const ItemCard = ({
 
 const Boost = () => {
   return (
-    <section className="w-full h-[100vh] flex flex-col justify-start items-center pt-[200px] px-[30px] text-[white] font-[Lexend] overflow-y-scroll">
+    <section className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col justify-start items-center pt-[200px] px-[30px] text-[white] font-[Lexend]">
       <span className="font-semibold text-[20px] mb-[12px] w-full text-left">
         Multiplier:
       </span>

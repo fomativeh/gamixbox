@@ -11,7 +11,7 @@ const Earn = ({setBalance}:props) => {
   const handleClick = () => {
     setBalance((prev)=>prev+1)
     setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 200); // Duration to return to normal
+    setTimeout(() => setIsPressed(false), 20); // Duration to return to normal
   };
 
   return (
