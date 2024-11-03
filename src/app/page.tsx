@@ -16,9 +16,13 @@ import Nav from "./components/BottomNav/Nav";
 import { NavPagesType } from "@/types/NavPagesType";
 import Earn from "./page-components/Earn/Earn";
 import HeaderTop from "./components/HeaderTop/HeaderTop";
+import Friends from "./page-components/Friends/Friends";
+import Tasks from "./page-components/Tasks/Tasks";
+import Boost from "./page-components/Boost/Boost";
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
+  const [currentPage, setCurrentPage] = useState<NavPagesType>("Friends");
+  const [balance, setBalance] = useState<number>(1906);
 
   let chatId = 1645873626;
   // const [closingBehavior] = initClosingBehavior();
@@ -80,8 +84,21 @@ export default function Home() {
   return (
     <main className="w-full h-[100vh] relative">
       <TonConnectButton className="hidden" />
-      <HeaderTop  handleWalletClick={handleWalletClick} tonConnectUI={tonConnectUI} walletAddress={walletAddress} walletLoaded={walletLoaded}/>
-      <Earn />
+      {currentPage !== "Friends" && currentPage!=="Tasks" && (
+        <HeaderTop
+          balance={balance}
+          handleWalletClick={handleWalletClick}
+          tonConnectUI={tonConnectUI}
+          walletAddress={walletAddress}
+          walletLoaded={walletLoaded}
+        />
+      )}
+
+      {currentPage == "Friends" && <Friends />}
+      {currentPage == "Earns" && <Earn setBalance={setBalance} />}
+      {currentPage =="Tasks" && <Tasks/>}
+      {currentPage =="Tasks" && <Tasks/>}
+      {currentPage =="Boost" && <Boost/>}
       <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
     </main>
   );

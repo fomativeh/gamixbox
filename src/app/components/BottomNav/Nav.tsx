@@ -11,9 +11,9 @@ const Nav = ({currentPage, setCurrentPage}:props) => {
   const pages: string[] = ["Earns", "Boost", "Tasks", "Friends"];
 
   return (
-    <nav className="w-full fixed bottom-0 left-0 text-[white] flex flex-col justify-center items-center font-[Lexend]">
-      <section className="nav-shadow w-full flex justify-center items-center max-w-[500px] py-[25px] rounded-t-[30px] z-[2] border-t-[3px] border-t-light_blue_1">
-        <section className="w-[90%] py-[15px] flex justify-between items-center px-[40px] blur-bg rounded-[50px] bg-white/16">
+    <nav className="w-full absolute z-[9] bottom-0 left-0 text-[white] flex flex-col justify-center items-center font-[Lexend]">
+      <section className="bg-dark_blue_1 nav-shadow w-full flex justify-center items-center max-w-[500px] py-[25px] rounded-t-[30px] border-t-[3px] border-t-light_blue_1">
+        <section className="w-[90%] py-[15px] flex justify-between items-center px-[40px] blur-bg rounded-[50px] ">
           {pages.map((each, i) => {
             return (
               <section key={i} className="flex flex-col justify-start items-center" onClick={()=>setCurrentPage(each as NavPagesType)}>

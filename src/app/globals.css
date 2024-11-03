@@ -16,6 +16,35 @@
   box-shadow: 0px 2px 40px -10px rgba(112, 112, 255, 0.871);
 }
 
+/* Global custom scrollbar */
+*::-webkit-scrollbar {
+  width: 12px; /* Customize the scrollbar width */
+}
+
+/* Scrollbar track (background) */
+*::-webkit-scrollbar-track {
+  background-color: #7070FF; /* Blue track */
+  border-radius: 10px;
+}
+
+/* Scrollbar thumb (scroll indicator) */
+*::-webkit-scrollbar-thumb {
+  background-color: #00001F; /* Dark blue thumb */
+  border-radius: 10px;
+}
+
+/* For Firefox */
+* {
+  scrollbar-color: #00001F #7070FF; /* thumb color, track color */
+  scrollbar-width: thin;
+}
+
+/* Hide scrollbar buttons (arrows) */
+*::-webkit-scrollbar-button {
+  display: none;
+}
+
+
 .blur-bg{
   border: 1px solid rgba(112, 112, 255, 0.88);
   background-color: rgba(255, 255, 255, 0.16);

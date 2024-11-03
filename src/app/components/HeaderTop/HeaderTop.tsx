@@ -1,6 +1,7 @@
 import { TonConnectUI } from "@tonconnect/ui-react";
 import Image from "next/image";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
+import {formatNumberWithCommas} from "fomautils"
 
 type props = {
   avatar?: string;
@@ -9,6 +10,7 @@ type props = {
   walletLoaded: boolean;
   tonConnectUI: TonConnectUI;
   walletAddress: string;
+  balance:number
 };
 
 const HeaderTop = ({
@@ -18,6 +20,7 @@ const HeaderTop = ({
   walletLoaded,
   tonConnectUI,
   walletAddress,
+  balance
 }: props) => {
   const handleButtonClick = () => {
     if (walletLoaded) {
@@ -27,7 +30,7 @@ const HeaderTop = ({
 
   return (
     <header className="z-[99] w-full fixed top-0 left-0 text-[white] flex flex-col justify-center items-center font-[Lexend]">
-      <section className="header w-full flex flex-col justify-center items-center max-w-[500px] p-[20px] rounded-b-[30px] z-[2] border-b-[3px] border-b-light_blue_1">
+      <section className="bg-dark_blue_1 header w-full flex flex-col justify-center items-center max-w-[500px] p-[20px] rounded-b-[30px] z-[2] border-b-[3px] border-b-light_blue_1">
         <section className="w-full flex justify-between items-center">
           {/* Username--avatar */}
           <section className="flex justify-start items-center">
@@ -93,10 +96,10 @@ const HeaderTop = ({
 
         <section className="w-full mt-[20px] blur-bg rounded-[50px] flex justify-between items-center h-[50px] px-[30px] relative">
           <section className="flex justify-start items-center">
-            <figure className="w-[20px] h-[20px] relative mr-[5px]">
+            <figure className="w-[35px] h-[35px] relative mr-[5px]">
               <Image src="/assets/icons/Earns.svg" alt="Earn icon" fill />
             </figure>
-            <span className="font-semibold">10,000</span>
+            <span className="font-semibold">{formatNumberWithCommas(balance)}</span>
           </section>
 
           <div className="w-full h-full top-0 left-0 absolute flex justify-center items-center ">

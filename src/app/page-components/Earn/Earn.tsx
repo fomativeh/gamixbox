@@ -1,11 +1,15 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import "./Earn.css"
 
-const Earn = () => {
+type props = {
+  setBalance:Dispatch<SetStateAction<number>>
+}
+const Earn = ({setBalance}:props) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const handleClick = () => {
+    setBalance((prev)=>prev+1)
     setIsPressed(true);
     setTimeout(() => setIsPressed(false), 200); // Duration to return to normal
   };
