@@ -69,3 +69,22 @@
     transform: rotate(1turn);
   }
 }
+
+.tap-effect {
+  position: absolute;
+  font-size: 1.5rem;
+  color: #fff; /* Adjust color as needed */
+  animation: fadeUp 1.7s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-290px); /* Move upwards */
+  }
+}

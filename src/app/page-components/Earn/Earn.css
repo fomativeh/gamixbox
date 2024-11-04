@@ -4,6 +4,6 @@
   }
   
   .coin.pressed {
-    transform: scale(0.9) translateY(2px); /* Simulates a slight press */
+    transform: scale(0.723) translateY(2px); /* Simulates a slight press */
   }
   

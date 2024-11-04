@@ -17,7 +17,7 @@ const Nav = ({currentPage, setCurrentPage}:props) => {
           {pages.map((each, i) => {
             return (
               <section key={i} className="flex flex-col justify-start items-center" onClick={()=>setCurrentPage(each as NavPagesType)}>
-                <figure className="relative w-[35px] h-[35px] mb-[2px]">
+                <figure className="relative w-[30px] h-[30px] mb-[2px]">
                   <Image
                     src={`/assets/icons/${each}.svg`}
                     alt="Nav icon"
@@ -25,7 +25,7 @@ const Nav = ({currentPage, setCurrentPage}:props) => {
                     className={`${each!==currentPage && `opacity-[50%]`}`}
                   />
                 </figure>
-                <span className={`${each!==currentPage && `opacity-[50%]`} font-semibold text-[14px]`}>{each}</span>
+                <span className={`${each!==currentPage && `opacity-[50%]`} font-semibold text-[12px]`}>{each}</span>
               </section>
             );
           })}

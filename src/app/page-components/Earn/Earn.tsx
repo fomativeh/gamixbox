@@ -1,41 +1,101 @@
-import Image from "next/image";
-import React, { Dispatch, SetStateAction, useState } from "react";
-import "./Earn.css"
+import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
+import "./Earn.css";
+import { formatNumberWithCommas } from "fomautils";
+import { UserType } from "@/types/UserType";
 
-type props = {
-  setBalance:Dispatch<SetStateAction<number>>
-}
-const Earn = ({setBalance}:props) => {
+type Props = {
+  balanceRef: MutableRefObject<number>;
+  level: number;
+  setUserData: Dispatch<SetStateAction<UserType>>;
+  boosterActive: "2x" | "3x" | "4x" | null;
+  multitapActive: boolean;
+};
+
+const Earn = ({ balanceRef, level, setUserData, boosterActive, multitapActive }: Props) => {
   const [isPressed, setIsPressed] = useState(false);
+  const [tapEffects, setTapEffects] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [tapId, setTapId] = useState(0);
 
-  const handleClick = () => {
-    setBalance((prev)=>prev+1)
+  // Detect if the device is touch-enabled
+  const isTouchDevice = "ontouchstart" in window;
+
+  const handleIncrement = (tapCount: number) => {
+    for (let i = 0; i < tapCount; i++) {
+      if (boosterActive) {
+        balanceRef.current += parseInt(boosterActive[0]);
+      } else {
+        balanceRef.current++;
+      }
+    }
+
+    const balanceSpan = document.getElementById("displayBalance");
+    if (balanceSpan) {
+      balanceSpan.innerText = `${formatNumberWithCommas(balanceRef.current)}`;
+    }
+
     setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 20); // Duration to return to normal
+    setTimeout(() => setIsPressed(false), 50);
   };
+
+  const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
+    const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
+    handleIncrement(tapCount);
+
+    // Set tap effect position
+    const x = "touches" in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
+    const y = "touches" in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
+
+    setTapEffects((prev) => [...prev, { id: tapId, x, y }]);
+    setTapId((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    // Remove tap effects after animation duration
+    const timer = setTimeout(() => {
+      setTapEffects((effects) => effects.slice(1));
+    }, 1700);
+
+    return () => clearTimeout(timer);
+  }, [tapEffects]);
 
   return (
     <section className="w-full h-[100vh] flex flex-col justify-center items-center">
       <section className="relative w-full h-full flex justify-center items-center">
         {/* Blur */}
         <figure className="w-full h-full max-w-[400px] max-h-[400px] relative">
-          <Image src="/assets/images/blur-1.svg" alt="Blur image" fill />
+          <img
+            src={`/assets/images/blur-${level}.svg`}
+            alt="Blur image"
+            className="w-full h-full"
+          />
         </figure>
 
         {/* Coin */}
         <section className="w-full h-full flex justify-center items-center absolute top-0 left-0">
-          <figure
-            className="w-[250px] h-[250px] relative"
-            onClick={handleClick}
-          >
-            <Image
-              src="/assets/images/level-1.svg"
+          <div className="w-[250px] h-[250px] relative">
+            <img
+              onClick={!isTouchDevice ? handleTouchOrClick : undefined}
+              onTouchStart={isTouchDevice ? handleTouchOrClick : undefined}
+              src={`/assets/images/level-${level}.svg`}
               alt="Coin image"
-              className={`coin ${isPressed ? "pressed" : ""}`}
-              fill
+              className={`w-full h-full coin ${isPressed ? "pressed" : ""}`}
             />
-          </figure>
+          </div>
         </section>
+
+        {/* Tap Effects */}
+        {tapEffects.map((effect) => (
+          <span
+            key={effect.id}
+            className="tap-effect text-white font-semibold absolute z-10"
+            style={{
+              top: `${effect.y}px`,
+              left: `${effect.x}px`,
+            }}
+          >
+            +{boosterActive ? boosterActive[0] : `1`}
+          </span>
+        ))}
       </section>
     </section>
   );
