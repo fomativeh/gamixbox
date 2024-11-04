@@ -88,3 +88,86 @@
     transform: translateY(-290px); /* Move upwards */
   }
 }
+
+.lds-dual-ring,
+.lds-dual-ring:after {
+  box-sizing: border-box;
+  margin-left: -3px;
+  margin-bottom: -2px;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 40px; /* Increased width */
+  height: 40px; /* Increased height */
+}
+
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 40px; /* Increased width */
+  height: 40px; /* Increased height */
+  margin: 2px;
+  border-radius: 50%;
+  border: 4.8px solid white; /* Adjusted border thickness */
+  border-color: white transparent white transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.loader {
+  width: 125px; /* 50px * 2.5 */
+  aspect-ratio: 1;
+  box-shadow: 0 0 0 7.5px #fff inset; /* Default inner shadow */
+  border-radius: 50%;
+  position: relative;
+  animation: rotate 7s infinite linear; /* Updated animation name */
+}
+
+/* Inner loader circles */
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  top: calc(100% + 7.5px); /* 3px * 2.5 */
+  left: calc(50% - 31.25px); /* 12.5px * 2.5 */
+  box-shadow: inherit;
+  width: 62.5px; /* 25px * 2.5 */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform-origin: 50% -70px; /* 28px * 2.5 */
+  animation: rotate-inner 1.5s infinite linear; /* Updated animation name */
+}
+
+.loader:after {
+  animation-delay: -0.75s; /* Staggered effect */
+}
+
+/* Keyframes for rotation */
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate-inner {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Add a glowing effect with random colors */
+@keyframes glow {
+  0% { box-shadow: 0 0 0 7.5px rgba(255, 255, 255, 0.8); }
+  50% { box-shadow: 0 0 0 12.5px rgba(255, 165, 0, 0.6); } /* Example color */
+  100% { box-shadow: 0 0 0 7.5px rgba(255, 255, 255, 0.8); }
+}

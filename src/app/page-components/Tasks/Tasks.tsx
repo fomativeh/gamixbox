@@ -3,6 +3,8 @@ import { TaskType } from "@/types/TaskType";
 import { UserType } from "@/types/UserType";
 import { formatNumberWithCommas } from "fomautils";
 import Image from "next/image";
+import { initUtils } from "@tma.js/sdk";
+
 import React, {
   Dispatch,
   MutableRefObject,
@@ -34,10 +36,19 @@ const TaskCard = ({
   token: string;
   balance: MutableRefObject<number>;
 }) => {
+  const utils = initUtils();
   const [startLoader, setStartLoader] = useState<boolean>(false);
   const [verifyLoader, setVerifyLoader] = useState<boolean>(false);
 
   const startTask = useCallback(async (id: string) => {
+    if (link.includes("t.me")) {
+      utils.openTelegramLink(link);
+      // window.open(link, "_blank");
+    } else {
+      //For external links
+      utils.openLink(link);
+      // window.open(link, "_blank");
+    }
     setStartLoader(true);
     const startTaskRes = await startATask(chatId, id, token);
     if (startTaskRes?.data) {
@@ -138,6 +149,8 @@ const Tasks = ({
   token: string;
   balance: MutableRefObject<number>;
 }) => {
+
+
   return (
     <main className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col items-center justify-start pt-[30px] px-[30px] font-[Lexend] text-[white]">
       <figure className="w-[140px] h-[140px] relative mb-[20px]">

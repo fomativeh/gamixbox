@@ -33,6 +33,8 @@ import { formatNumberWithCommas } from "fomautils";
 import { fetchTasks } from "@/api/task";
 import { TaskType } from "@/types/TaskType";
 import { checkLevel } from "@/helpers/checkLevel";
+import Image from "next/image";
+import Loader from "./components/Loader/Loader";
 
 export default function Home() {
   const [closingBehavior] = initClosingBehavior();
@@ -42,7 +44,7 @@ export default function Home() {
   const chatId = data?.user?.id as number;
   viewport?.expand();
   const { initDataRaw } = retrieveLaunchParams();
-  const token = initDataRaw as string
+  const token = initDataRaw as string;
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
   const [userData, setUserData] = useState<UserType>(initialUserData);
@@ -212,66 +214,86 @@ export default function Home() {
   return (
     <main className="w-full h-[100vh] relative">
       <TonConnectButton className="hidden" />
-      <HeaderTop
-        visible={currentPage == "Friends" || currentPage == "Tasks"}
-        nickname={userData?.level?.levelNickname as string}
-        name={setName(userData)}
-        avatar={userData.avatar as string}
-        balance={balanceRef.current}
-        handleWalletClick={handleWalletClick}
-        tonConnectUI={tonConnectUI}
-        walletAddress={walletAddress}
-        walletLoaded={walletLoaded}
-      />
-
-      {currentPage === "Friends" && (
-        <Friends
-          friends={userData.referrals}
-          chatId={chatId}
-          token={token}
-          setUserData={setUserData}
-        />
-      )}
-
-      {currentPage === "Earns" && (
+      {userData._id && (
         <>
-          {userData?.level?.levelCount && (
-            <Earn
-              multitapActive={multitapActive}
-              balanceRef={balanceRef}
+          <HeaderTop
+            visible={currentPage == "Friends" || currentPage == "Tasks"}
+            nickname={userData?.level?.levelNickname as string}
+            name={setName(userData)}
+            avatar={userData.avatar as string}
+            balance={balanceRef.current}
+            handleWalletClick={handleWalletClick}
+            tonConnectUI={tonConnectUI}
+            walletAddress={walletAddress}
+            walletLoaded={walletLoaded}
+          />
+
+          {currentPage === "Friends" && (
+            <Friends
+              friends={userData.referrals}
+              chatId={chatId}
+              token={token}
               setUserData={setUserData}
-              level={userData?.level?.levelCount}
-              boosterActive={boosterActive}
             />
           )}
+
+          {currentPage === "Earns" && (
+            <>
+              {userData?.level?.levelCount && (
+                <Earn
+                  multitapActive={multitapActive}
+                  balanceRef={balanceRef}
+                  setUserData={setUserData}
+                  level={userData?.level?.levelCount}
+                  boosterActive={boosterActive}
+                />
+              )}
+            </>
+          )}
+
+          {currentPage === "Tasks" && (
+            <Tasks
+              balance={balanceRef}
+              token={token}
+              chatId={chatId}
+              setUserData={setUserData}
+              tasks={tasks}
+              ongoingTasks={userData.ongoingTasks}
+              completedTasks={userData.completedTasks}
+            />
+          )}
+          {currentPage === "Boost" && (
+            <Boost
+              chatId={chatId}
+              token={token}
+              multitapTimer={multitapTimer as number}
+              boosterTimer={boosterTimer as number}
+              multitapActive={multitapActive}
+              setMultitapActive={setMultitapActive}
+              balanceRef={balanceRef}
+              boosterActive={boosterActive}
+              setBoosterActive={setBoosterActive}
+            />
+          )}
+          <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
         </>
       )}
 
-      {currentPage === "Tasks" && (
-        <Tasks
-          balance={balanceRef}
-          token={token}
-          chatId={chatId}
-          setUserData={setUserData}
-          tasks={tasks}
-          ongoingTasks={userData.ongoingTasks}
-          completedTasks={userData.completedTasks}
-        />
+      {!userData._id && (
+        <section className="w-full h-full relative">
+          <figure className="relative w-full h-full">
+            <Image src="/assets/images/loader.jpg" alt="Loader image" fill />
+          </figure>
+
+          <section className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
+
+            <section className="mt-[400px] bg-[#0f0e39f1] rounded-[50%] w-[75vw] h-[75vw] flex justify-center items-center">
+            <Loader/>
+
+            </section>
+          </section>
+        </section>
       )}
-      {currentPage === "Boost" && (
-        <Boost
-          chatId={chatId}
-          token={token}
-          multitapTimer={multitapTimer as number}
-          boosterTimer={boosterTimer as number}
-          multitapActive={multitapActive}
-          setMultitapActive={setMultitapActive}
-          balanceRef={balanceRef}
-          boosterActive={boosterActive}
-          setBoosterActive={setBoosterActive}
-        />
-      )}
-      <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
     </main>
   );
 }
