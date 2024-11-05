@@ -31,7 +31,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
     }
 
     setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 50);
+    setTimeout(() => setIsPressed(false), 100);
   };
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
@@ -51,7 +51,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
     setTapEffects((prev) => [...prev, ...newTapEffects]);
     setTapId((prev) => prev + tapCount);
   };
-  
+
   useEffect(() => {
     // Remove the oldest tap effect after the animation duration
     const timer = setTimeout(() => {
