@@ -15,7 +15,7 @@ export const initialUserData: UserType = {
   completedTasks: [],
   ongoingTasks: [],
   walletAddress: null,
-  booster2: false, booster3: false, booster4: false,
+  boosters:[],
   multitap: false,
   _id: '',          // default empty string
   createdAt: '',    // default empty string

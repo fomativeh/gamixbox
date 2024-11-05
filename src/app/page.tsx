@@ -34,6 +34,7 @@ import { checkLevel } from "@/helpers/checkLevel";
 import Image from "next/image";
 import Loader from "./components/Loader/Loader";
 import Airdrop from "./page-components/Airdrop/Airdrop";
+import { getHighestNumber } from "@/helpers/getHighestBoosterBought";
 
 export default function Home() {
   const [closingBehavior] = initClosingBehavior();
@@ -44,9 +45,8 @@ export default function Home() {
   viewport?.expand();
   const { initDataRaw } = retrieveLaunchParams();
   const token = initDataRaw as string;
-  // let token = ""
-  // let chatId = 1645873626
-  
+  // let token = "";
+  // let chatId = 1645873626;
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
   const [userData, setUserData] = useState<UserType>(initialUserData);
@@ -60,7 +60,7 @@ export default function Home() {
     if (userData._id) {
       await updateBalance(chatId, balanceRef.current, token);
     }
-  },[userData._id])
+  }, [userData._id]);
 
   //
   useEffect(() => {
@@ -145,7 +145,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log("balance before check "+balanceRef.current)
     //Check for level updates
     const isUpdateNeeded = checkLevel(
       balanceRef.current,
@@ -162,14 +161,17 @@ export default function Home() {
     }
   }, [balanceRef.current]);
 
-  
   return (
     <main className="w-full h-[100vh] relative">
       <TonConnectButton className="hidden" />
       {userData._id && (
         <>
           <HeaderTop
-            hide={currentPage == "Friends" || currentPage == "Tasks" || currentPage=="Airdrop"}
+            hide={
+              currentPage == "Friends" ||
+              currentPage == "Tasks" ||
+              currentPage == "Airdrop"
+            }
             nickname={userData?.level?.levelNickname as string}
             name={setName(userData)}
             avatar={userData.avatar as string}
@@ -197,23 +199,13 @@ export default function Home() {
                   balanceRef={balanceRef}
                   setUserData={setUserData}
                   level={userData?.level?.levelCount}
-                  highestBoosterBought={
-                    userData.booster4
-                    ? 4
-                    : userData.booster3
-                    ? 3
-                    : userData.booster2
-                    ? 2
-                    : null
-                  }
+                  highestBoosterBought={getHighestNumber(userData.boosters)}
                 />
               )}
             </>
           )}
 
-          {currentPage=="Airdrop" && (
-            <Airdrop/>
-          )}
+          {currentPage == "Airdrop" && <Airdrop />}
 
           {currentPage === "Tasks" && (
             <Tasks
@@ -228,13 +220,14 @@ export default function Home() {
             />
           )}
           {currentPage === "Boost" && (
-            <Boost chatId={chatId}
-            multitapActive={userData.multitap}
-            booster2Active={userData.booster2}
-            booster3Active={userData.booster3}
-            booster4Active={userData.booster4}
-
-            token={token} balanceRef={balanceRef} setUserData={setUserData} />
+            <Boost
+              chatId={chatId}
+              multitapActive={userData.multitap}
+              userBoosters = {userData.boosters}
+              token={token}
+              balanceRef={balanceRef}
+              setUserData={setUserData}
+            />
           )}
           <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
         </>
@@ -247,10 +240,8 @@ export default function Home() {
           </figure>
 
           <section className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
-
             <section className="mt-[400px] bg-[#0f0e39f1] rounded-[50%] w-[45vw] h-[45vw] flex justify-center items-center">
-            <Loader/>
-
+              <Loader />
             </section>
           </section>
         </section>

@@ -1,4 +1,11 @@
-import React, { Dispatch, MutableRefObject, SetStateAction, useCallback, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import "./Earn.css";
 import { formatNumberWithCommas } from "fomautils";
 import { UserType } from "@/types/UserType";
@@ -11,54 +18,77 @@ type Props = {
   multitapActive: boolean;
 };
 
-const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapActive }: Props) => {
+const Earn = ({
+  balanceRef,
+  level,
+  setUserData,
+  highestBoosterBought,
+  multitapActive,
+}: Props) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [tapEffects, setTapEffects] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
+  const [tapEffects, setTapEffects] = useState<
+    { id: number; x: number; y: number; amount: number }[]
+  >([]);
   const [tapId, setTapId] = useState(0);
   const tapC = useRef<null | number>(null);
 
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
-  const handleIncrement = useCallback((tapCount: number) => {
-    const incrementAmount = highestBoosterBought || 1;
-    const totalIncrement = incrementAmount * tapCount;
+  const handleIncrement = useCallback(
+    (tapCount: number) => {
+      const incrementAmount = highestBoosterBought || 1;
+      if (tapC.current) {
+        const totalIncrement = (incrementAmount * tapC.current) as number;
+        // Update the balanceRef
+        balanceRef.current += totalIncrement;
 
-    // Update the balanceRef
-    balanceRef.current += totalIncrement;
+        const balanceSpan = document.getElementById("displayBalance");
+        if (balanceSpan) {
+          balanceSpan.innerText = `${formatNumberWithCommas(
+            balanceRef.current
+          )}`;
+        }
 
-    const balanceSpan = document.getElementById("displayBalance");
-    if (balanceSpan) {
-      balanceSpan.innerText = `${formatNumberWithCommas(balanceRef.current)}`;
-    }
-
-    setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 100);
-  }, [balanceRef, highestBoosterBought]);
+        setIsPressed(true);
+        setTimeout(() => setIsPressed(false), 100);
+      }
+    },
+    [balanceRef, highestBoosterBought, tapC]
+  );
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
     // Prevent default action and stop propagation
-    e.preventDefault();
     e.stopPropagation();
 
     // Determine the number of taps based on multitapActive and number of fingers detected
-    const tapCount = multitapActive && "touches" in e ? Math.min(e.touches.length, highestBoosterBought || 1) : 1;
+    const tapCount =
+      multitapActive && "touches" in e
+        ? Math.min(e.touches.length, highestBoosterBought || 1)
+        : 1;
     tapC.current = tapCount;
 
     handleIncrement(tapCount);
 
-    const newTapEffects: { id: number; x: number; y: number; amount: number }[] = [];
+    const newTapEffects: {
+      id: number;
+      x: number;
+      y: number;
+      amount: number;
+    }[] = [];
     const incrementAmount = highestBoosterBought || 1;
 
     for (let i = 0; i < tapCount; i++) {
-      const x = "touches" in e ? e.touches[i].pageX : (e as React.MouseEvent).pageX;
-      const y = "touches" in e ? e.touches[i].pageY : (e as React.MouseEvent).pageY;
+      const x =
+        "touches" in e ? e.touches[i].pageX : (e as React.MouseEvent).pageX;
+      const y =
+        "touches" in e ? e.touches[i].pageY : (e as React.MouseEvent).pageY;
       const newTapEffect = { id: tapId + i, x, y, amount: incrementAmount };
       newTapEffects.push(newTapEffect);
 
       // Schedule removal after 1700ms
       setTimeout(() => {
-        setTapEffects((currentEffects) => 
+        setTapEffects((currentEffects) =>
           currentEffects.filter((effect) => effect.id !== newTapEffect.id)
         );
       }, 1700);

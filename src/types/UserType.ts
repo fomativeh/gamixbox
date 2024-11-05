@@ -14,9 +14,7 @@ export interface UserType {
     completedTasks: string[]; // ids of completed tasks
     ongoingTasks: string[]; // ids of ongoing tasks
     walletAddress: string | null;
-    booster2:boolean
-    booster3:boolean
-    booster4:boolean
+    boosters:number[],
     multitap: boolean;
     _id: string|null;
     createdAt: string;

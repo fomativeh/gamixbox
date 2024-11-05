@@ -1,4 +1,6 @@
 import { buyMultitap, buyBooster } from "@/api/user";
+import { getBoosterCost } from "@/helpers/getBoosteCost";
+import { getHighestNumber } from "@/helpers/getHighestBoosterBought";
 import { UserType } from "@/types/UserType";
 import { formatNumberWithCommas } from "fomautils";
 import Image from "next/image";
@@ -48,7 +50,11 @@ const ItemCard = ({
 
     if (category == "Multitap") {
       setLoading(true);
-      const buyMultitapRes = await buyMultitap(chatId, token, balanceRef.current);
+      const buyMultitapRes = await buyMultitap(
+        chatId,
+        token,
+        balanceRef.current
+      );
       if (buyMultitapRes?.data) {
         setUserData((prev) => ({ ...prev, ...buyMultitapRes.data }));
         let newBalance = buyMultitapRes.data.balance;
@@ -61,7 +67,12 @@ const ItemCard = ({
     } else {
       //For boosters
       setLoading(true);
-      const buyBoosterRes = await buyBooster(chatId, token, boosterType as number, balanceRef.current);
+      const buyBoosterRes = await buyBooster(
+        chatId,
+        token,
+        boosterType as number,
+        balanceRef.current
+      );
       if (buyBoosterRes?.data) {
         setUserData((prev) => ({ ...prev, ...buyBoosterRes.data }));
         let newBalance = buyBoosterRes.data.balance;
@@ -73,14 +84,16 @@ const ItemCard = ({
       }
     }
   }, [balanceRef]);
-  
+
   return (
     <section
       style={{
-        border: (insufficientBalance && !bought) ? `1px solid silver` : ``,
+        border: insufficientBalance && !bought ? `1px solid silver` : ``,
       }}
       className={`${
-        (insufficientBalance && !bought) || !readyForPurchase? `opacity-[50%]` : ``
+        (insufficientBalance && !bought) || !readyForPurchase
+          ? `opacity-[50%]`
+          : ``
       } z-[1] w-full mb-[13px] blur-bg rounded-[8px] px-[20px] py-[12px] flex justify-between items-center`}
     >
       <section className="flex justify-start items-center">
@@ -144,18 +157,14 @@ const Boost = ({
   token,
   setUserData,
   multitapActive,
-  booster2Active,
-  booster3Active,
-  booster4Active,
+  userBoosters,
 }: {
   balanceRef: MutableRefObject<number>;
   chatId: number;
   token: string;
   setUserData: Dispatch<SetStateAction<UserType>>;
   multitapActive: boolean;
-  booster2Active: boolean;
-  booster3Active: boolean;
-  booster4Active: boolean;
+  userBoosters: number[];
 }) => {
   return (
     <section className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col justify-start items-center pt-[200px] px-[30px] text-[white] font-[Lexend]">
@@ -182,42 +191,33 @@ const Boost = ({
         Booster:
       </span>
       <section className="w-full flex flex-col items-center mb-[200px]">
-        <ItemCard
-        setUserData={setUserData}
-          bought={booster2Active}
-          chatId={chatId}
-          token={token}
-          balanceRef={balanceRef}
-          price={10000}
-          title="Booster 2x"
-          category="Booster"
-          boosterType={2}
-          readyForPurchase={true}
-        />
-        <ItemCard
-        setUserData={setUserData}
-          chatId={chatId}
-          token={token}
-          balanceRef={balanceRef}
-          price={15000}
-          title="Booster 3x"
-          category="Booster"
-          readyForPurchase={booster2Active}
-          bought={booster3Active}
-          boosterType={3}
-        />
-        <ItemCard
-        setUserData={setUserData}
-          bought={booster4Active}
-          chatId={chatId}
-          token={token}
-          balanceRef={balanceRef}
-          price={20000}
-          title="Booster 4x"
-          category="Booster"
-          readyForPurchase={booster2Active && booster3Active}
-          boosterType={4}
-        />
+        {[2,3,4,5,6,7,8,9,10].map((each, i)=>{
+          let alreadyBought = userBoosters.includes(each)
+          let readyForPurchase = false //Ready for purchase keeps the item opacity high 
+          if(alreadyBought){
+            readyForPurchase = true //Keep opacity high both before and after purchase
+          }
+          else if(each==2){
+            readyForPurchase = true
+          } else if (each - (getHighestNumber(userBoosters) as number) ==1){
+            readyForPurchase = true
+          }
+          return (
+            <ItemCard
+            key={i}
+            setUserData={setUserData}
+            bought={alreadyBought}
+            chatId={chatId}
+            token={token}
+            balanceRef={balanceRef}
+            price={getBoosterCost(each) as number}
+            title={`Booster ${each}x`}
+            category="Booster"
+            boosterType={each}
+            readyForPurchase={readyForPurchase} //If the highest booster of the user is one step lesser than this booster, and if this isn't booster 2, and if user hasn't already bought this
+          />
+          )
+        })}
       </section>
     </section>
   );
