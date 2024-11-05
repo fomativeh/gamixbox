@@ -17,6 +17,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   const [tapId, setTapId] = useState(0);
   const tapEffectsRef = useRef(tapEffects); // Reference to hold tap effects without causing re-renders
   tapEffectsRef.current = tapEffects; // Sync ref with state
+  let tapC = useRef<null | number>(null)
 
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
@@ -39,6 +40,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
     // Determine the number of taps based on multitapActive and number of fingers detected
     const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
+    tapC.current = tapCount
 
     handleIncrement(tapCount);
 
@@ -86,6 +88,9 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
               className={`w-full h-full coin ${isPressed ? "pressed" : ""}`}
             />
           </div>
+          {tapC.current && (
+            <span className="text-[white] font-bold">{tapC.current}</span>
+          )}
         </section>
 
         {/* Tap Effects */}
