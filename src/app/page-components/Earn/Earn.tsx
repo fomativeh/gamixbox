@@ -39,20 +39,19 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
     // Determine the number of taps based on multitapActive and number of fingers detected
-    const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
-    tapC.current = tapCount
-
+    const tapCount = multitapActive && "touches" in e ? Math.min(e.touches.length, highestBoosterBought || 1) : 1;
+    
     handleIncrement(tapCount);
-
+  
     const newTapEffects: { id: number; x: number; y: number; amount: number }[] = [];
     const incrementAmount = highestBoosterBought || 1;
-
+  
     for (let i = 0; i < tapCount; i++) {
       const x = "touches" in e ? e.touches[i].pageX : (e as React.MouseEvent).pageX;
       const y = "touches" in e ? e.touches[i].pageY : (e as React.MouseEvent).pageY;
       const newTapEffect = { id: tapId + i, x, y, amount: incrementAmount };
       newTapEffects.push(newTapEffect);
-
+  
       // Schedule removal after 1700ms
       setTimeout(() => {
         setTapEffects((currentEffects) =>
@@ -60,10 +59,11 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
         );
       }, 1700);
     }
-
+  
     setTapEffects((prev) => [...prev, ...newTapEffects]);
     setTapId((prev) => prev + tapCount);
   };
+  
 
   return (
     <section className="w-full h-[100vh] flex flex-col justify-center items-center">
