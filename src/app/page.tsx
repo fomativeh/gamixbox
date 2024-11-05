@@ -36,16 +36,15 @@ import Loader from "./components/Loader/Loader";
 import Airdrop from "./components/Airdrop/Airdrop";
 
 export default function Home() {
-  // const [closingBehavior] = initClosingBehavior();
-  // closingBehavior.enableConfirmation();
-  // const viewport = useViewport();
-  // const data = useInitData(); // Destructuring initData
-  // const chatId = data?.user?.id as number;
-  // viewport?.expand();
-  // const { initDataRaw } = retrieveLaunchParams();
-  // const token = initDataRaw as string;
-  let token = "";
-  let chatId = 164587362;
+  const [closingBehavior] = initClosingBehavior();
+  closingBehavior.enableConfirmation();
+  const viewport = useViewport();
+  const data = useInitData(); // Destructuring initData
+  const chatId = data?.user?.id as number;
+  viewport?.expand();
+  const { initDataRaw } = retrieveLaunchParams();
+  const token = initDataRaw as string;
+  
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
   const [userData, setUserData] = useState<UserType>(initialUserData);

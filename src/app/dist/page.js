@@ -50,6 +50,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var ui_react_1 = require("@tonconnect/ui-react");
 var react_1 = require("react");
+var sdk_1 = require("@tma.js/sdk");
+var sdk_react_1 = require("@tma.js/sdk-react");
 var Nav_1 = require("./components/BottomNav/Nav");
 var Earn_1 = require("./page-components/Earn/Earn");
 var HeaderTop_1 = require("./components/HeaderTop/HeaderTop");
@@ -67,19 +69,17 @@ var Loader_1 = require("./components/Loader/Loader");
 var Airdrop_1 = require("./components/Airdrop/Airdrop");
 function Home() {
     var _this = this;
-    var _a, _b, _c;
-    // const [closingBehavior] = initClosingBehavior();
-    // closingBehavior.enableConfirmation();
-    // const viewport = useViewport();
-    // const data = useInitData(); // Destructuring initData
-    // const chatId = data?.user?.id as number;
-    // viewport?.expand();
-    // const { initDataRaw } = retrieveLaunchParams();
-    // const token = initDataRaw as string;
-    var token = "";
-    var chatId = 164587362;
-    var _d = react_1.useState("Earns"), currentPage = _d[0], setCurrentPage = _d[1];
-    var _e = react_1.useState(initialUserData_1.initialUserData), userData = _e[0], setUserData = _e[1];
+    var _a, _b, _c, _d;
+    var closingBehavior = sdk_1.initClosingBehavior()[0];
+    closingBehavior.enableConfirmation();
+    var viewport = sdk_react_1.useViewport();
+    var data = sdk_react_1.useInitData(); // Destructuring initData
+    var chatId = (_a = data === null || data === void 0 ? void 0 : data.user) === null || _a === void 0 ? void 0 : _a.id;
+    viewport === null || viewport === void 0 ? void 0 : viewport.expand();
+    var initDataRaw = sdk_react_1.retrieveLaunchParams().initDataRaw;
+    var token = initDataRaw;
+    var _e = react_1.useState("Earns"), currentPage = _e[0], setCurrentPage = _e[1];
+    var _f = react_1.useState(initialUserData_1.initialUserData), userData = _f[0], setUserData = _f[1];
     var balanceRef = react_1.useRef(0);
     react_1.useEffect(function () {
         window.scrollTo(0, 0);
@@ -103,10 +103,10 @@ function Home() {
         return function () { return clearInterval(intervalId); };
     }, [userData]);
     var walletAddress = ui_react_1.useTonAddress();
-    var _f = ui_react_1.useTonConnectModal(), state = _f.state, open = _f.open, close = _f.close;
+    var _g = ui_react_1.useTonConnectModal(), state = _g.state, open = _g.open, close = _g.close;
     var tonConnectUI = ui_react_1.useTonConnectUI()[0];
-    var _g = react_1.useState(false), walletLoaded = _g[0], setWalletLoaded = _g[1];
-    var _h = react_1.useState(""), walletErr = _h[0], setWalletErr = _h[1];
+    var _h = react_1.useState(false), walletLoaded = _h[0], setWalletLoaded = _h[1];
+    var _j = react_1.useState(""), walletErr = _j[0], setWalletErr = _j[1];
     var initWallet = react_1.useCallback(function () {
         var intervalId = setInterval(function () {
             var loader = document.querySelector(".go121314943");
@@ -176,7 +176,7 @@ function Home() {
     react_1.useEffect(function () {
         handleAddressChange(); // Calls the function whenever it is recreated
     }, [handleAddressChange]);
-    var _j = react_1.useState(null), tasks = _j[0], setTasks = _j[1];
+    var _k = react_1.useState(null), tasks = _k[0], setTasks = _k[1];
     var loadTasks = react_1.useCallback(function () { return __awaiter(_this, void 0, void 0, function () {
         var loadTasksRes;
         return __generator(this, function (_a) {
@@ -205,9 +205,9 @@ function Home() {
     return (React.createElement("main", { className: "w-full h-[100vh] relative" },
         React.createElement(ui_react_1.TonConnectButton, { className: "hidden" }),
         userData._id && (React.createElement(React.Fragment, null,
-            React.createElement(HeaderTop_1["default"], { hide: currentPage == "Friends" || currentPage == "Tasks" || currentPage == "Airdrop", nickname: (_a = userData === null || userData === void 0 ? void 0 : userData.level) === null || _a === void 0 ? void 0 : _a.levelNickname, name: setName_1.setName(userData), avatar: userData.avatar, balance: balanceRef.current, handleWalletClick: handleWalletClick, tonConnectUI: tonConnectUI, walletAddress: walletAddress, walletLoaded: walletLoaded }),
+            React.createElement(HeaderTop_1["default"], { hide: currentPage == "Friends" || currentPage == "Tasks" || currentPage == "Airdrop", nickname: (_b = userData === null || userData === void 0 ? void 0 : userData.level) === null || _b === void 0 ? void 0 : _b.levelNickname, name: setName_1.setName(userData), avatar: userData.avatar, balance: balanceRef.current, handleWalletClick: handleWalletClick, tonConnectUI: tonConnectUI, walletAddress: walletAddress, walletLoaded: walletLoaded }),
             currentPage === "Friends" && (React.createElement(Friends_1["default"], { friends: userData.referrals, chatId: chatId, token: token, setUserData: setUserData })),
-            currentPage === "Earns" && (React.createElement(React.Fragment, null, ((_b = userData === null || userData === void 0 ? void 0 : userData.level) === null || _b === void 0 ? void 0 : _b.levelCount) && (React.createElement(Earn_1["default"], { multitapActive: userData.multitap, balanceRef: balanceRef, setUserData: setUserData, level: (_c = userData === null || userData === void 0 ? void 0 : userData.level) === null || _c === void 0 ? void 0 : _c.levelCount, highestBoosterBought: userData.booster4
+            currentPage === "Earns" && (React.createElement(React.Fragment, null, ((_c = userData === null || userData === void 0 ? void 0 : userData.level) === null || _c === void 0 ? void 0 : _c.levelCount) && (React.createElement(Earn_1["default"], { multitapActive: userData.multitap, balanceRef: balanceRef, setUserData: setUserData, level: (_d = userData === null || userData === void 0 ? void 0 : userData.level) === null || _d === void 0 ? void 0 : _d.levelCount, highestBoosterBought: userData.booster4
                     ? 4
                     : userData.booster3
                         ? 3
