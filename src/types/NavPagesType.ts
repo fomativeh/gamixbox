@@ -1,1 +1,1 @@
-export type NavPagesType = "Earns" | "Boost" | "Tasks" | "Friends"
+export type NavPagesType = "Earns" | "Boost" | "Tasks" | "Friends" | "Airdrop"

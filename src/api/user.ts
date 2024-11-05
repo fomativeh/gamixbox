@@ -56,21 +56,9 @@ export const fetchFriends = async (chatId: number, token: string) => {
     }
 }
 
-export const startMultitap = async (chatId: number, token: string) => {
+export const buyMultitap = async (chatId: number, token: string, currentBalance:number) => {
     try {
-        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/multitap`, "POST", {action:"ADD"}, token)
-        if (res?.data?.success) {
-            return { success: true, data: res?.data?.data }
-        }
-
-    } catch (error) {
-        console.log(error)
-        return { success: false }
-    }
-}
-export const endMultitap = async (chatId: number, token: string) => {
-    try {
-        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/multitap`, "POST", {action:"REMOVE"}, token)
+        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/multitap`, "POST", {currentBalance}, token)
         if (res?.data?.success) {
             return { success: true, data: res?.data?.data }
         }
@@ -81,9 +69,9 @@ export const endMultitap = async (chatId: number, token: string) => {
     }
 }
 
-export const startBooster = async (chatId: number, token: string, type:number) => {
+export const buyBooster = async (chatId: number, token: string, type:number, currentBalance:number) => {
     try {
-        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/booster`, "POST", {action:"ADD", type}, token)
+        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/booster`, "POST", {currentBalance, type}, token)
         if (res?.data?.success) {
             return { success: true, data: res?.data?.data }
         }
@@ -93,9 +81,11 @@ export const startBooster = async (chatId: number, token: string, type:number) =
         return { success: false }
     }
 }
-export const endBooster = async (chatId: number, token: string) => {
+
+
+export const claimDaily = async (chatId: number, token: string, currentBalance:number) => {
     try {
-        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/booster`, "POST", {action:"REMOVE"}, token)
+        const res: any = await callEndpoint(API_BASE_URL, `/user/${chatId}/claim`, "POST", {currentBalance}, token)
         if (res?.data?.success) {
             return { success: true, data: res?.data?.data }
         }

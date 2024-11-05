@@ -7,26 +7,23 @@ type Props = {
   balanceRef: MutableRefObject<number>;
   level: number;
   setUserData: Dispatch<SetStateAction<UserType>>;
-  boosterActive: "2x" | "3x" | "4x" | null;
+  highestBoosterBought: number | null;
   multitapActive: boolean;
 };
 
-const Earn = ({ balanceRef, level, setUserData, boosterActive, multitapActive }: Props) => {
+const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapActive }: Props) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [tapEffects, setTapEffects] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [tapEffects, setTapEffects] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
   const [tapId, setTapId] = useState(0);
 
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
   const handleIncrement = (tapCount: number) => {
-    for (let i = 0; i < tapCount; i++) {
-      if (boosterActive) {
-        balanceRef.current += parseInt(boosterActive[0]);
-      } else {
-        balanceRef.current++;
-      }
-    }
+    const incrementAmount = highestBoosterBought || 1;
+    const totalIncrement = incrementAmount * tapCount;
+
+    balanceRef.current += totalIncrement;
 
     const balanceSpan = document.getElementById("displayBalance");
     if (balanceSpan) {
@@ -38,14 +35,16 @@ const Earn = ({ balanceRef, level, setUserData, boosterActive, multitapActive }:
   };
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Calculate tap count based on multitap status and number of touches
     const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
     handleIncrement(tapCount);
 
-    // Set tap effect position
+    // Set tap effect position and amount
     const x = "touches" in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
     const y = "touches" in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
+    const amount = (highestBoosterBought || 1) * tapCount;
 
-    setTapEffects((prev) => [...prev, { id: tapId, x, y }]);
+    setTapEffects((prev) => [...prev, { id: tapId, x, y, amount }]);
     setTapId((prev) => prev + 1);
   };
 
@@ -72,7 +71,7 @@ const Earn = ({ balanceRef, level, setUserData, boosterActive, multitapActive }:
 
         {/* Coin */}
         <section className="w-full h-full flex justify-center items-center absolute top-0 left-0">
-          <div className="w-[250px] h-[250px] relative">
+          <div className="w-[160px] h-[160px] relative">
             <img
               onClick={!isTouchDevice ? handleTouchOrClick : undefined}
               onTouchStart={isTouchDevice ? handleTouchOrClick : undefined}
@@ -93,7 +92,7 @@ const Earn = ({ balanceRef, level, setUserData, boosterActive, multitapActive }:
               left: `${effect.x}px`,
             }}
           >
-            +{boosterActive ? boosterActive[0] : `1`}
+            +{formatNumberWithCommas(effect.amount)}
           </span>
         ))}
       </section>

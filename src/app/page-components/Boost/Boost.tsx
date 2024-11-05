@@ -1,77 +1,87 @@
-import { startBooster, startMultitap } from "@/api/user";
+import { buyMultitap, buyBooster } from "@/api/user";
+import { UserType } from "@/types/UserType";
 import { formatNumberWithCommas } from "fomautils";
 import Image from "next/image";
-import { Dispatch, MutableRefObject, SetStateAction, useCallback } from "react";
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useCallback,
+  useState,
+} from "react";
+
+const setBalanceText = (newBalance: number) => {
+  document.getElementById(
+    "displayBalance"
+  )!.innerText = `${formatNumberWithCommas(newBalance)}`;
+};
 
 const ItemCard = ({
+  setUserData,
   category,
   price,
   title,
-  inUse,
+  bought,
   balanceRef,
-  setMultitapActive,
-  multitapTimer,
   chatId,
   token,
-  boosterTimer,
-  setBoosterActive,
   boosterType,
+  readyForPurchase,
 }: {
-  expiresIn?: number;
+  setUserData: Dispatch<SetStateAction<UserType>>;
   category: "Booster" | "Multitap";
   price: number;
   title: string;
-  inUse: Boolean;
+  bought: boolean;
   balanceRef: MutableRefObject<number>;
-  setMultitapActive?: Dispatch<SetStateAction<boolean>>;
-  multitapTimer?: number;
   chatId: number;
   token: string;
-  boosterTimer?: number;
-  setBoosterActive?: Dispatch<SetStateAction<"2x" | "3x" | "4x" | null>>;
-  boosterType?: "2x" | "3x" | "4x" | null;
+  boosterType?: number;
+  readyForPurchase: boolean;
 }) => {
-  const handleBuy = useCallback(async () => {
-    if (balanceRef.current < price) return; //For insufficient balance
+  const [loading, setLoading] = useState<boolean>(false);
+  const insufficientBalance = balanceRef.current < price;
 
-    if (inUse) return;
+  const handleBuy = useCallback(async () => {
+    if (insufficientBalance) return; //For insufficient balance
+    if (bought) return; //For already bought items
 
     if (category == "Multitap") {
-      balanceRef.current -= price; //Deduct price
-      document.getElementById(
-        "displayBalance"
-      )!.innerText = `${formatNumberWithCommas(balanceRef.current)}`;
-      if (setMultitapActive) {
-        setMultitapActive(true);
+      setLoading(true);
+      const buyMultitapRes = await buyMultitap(chatId, token, balanceRef.current);
+      if (buyMultitapRes?.data) {
+        setUserData((prev) => ({ ...prev, ...buyMultitapRes.data }));
+        let newBalance = buyMultitapRes.data.balance;
+        balanceRef.current = newBalance;
+        setBalanceText(newBalance);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-
-      //Sync with backend
-      startMultitap(chatId, token);
     } else {
       //For boosters
-      balanceRef.current -= price; //Deduct price
-      document.getElementById(
-        "displayBalance"
-      )!.innerText = `${formatNumberWithCommas(balanceRef.current)}`;
-      if (setBoosterActive) {
-        setBoosterActive(boosterType as "2x" | "3x" | "4x" | null);
-      }
-
-      //Sync with backend
-      if (boosterType) {
-        startBooster(chatId, token, parseInt(boosterType[0]));
+      setLoading(true);
+      const buyBoosterRes = await buyBooster(chatId, token, boosterType as number, balanceRef.current);
+      if (buyBoosterRes?.data) {
+        setUserData((prev) => ({ ...prev, ...buyBoosterRes.data }));
+        let newBalance = buyBoosterRes.data.balance;
+        balanceRef.current = newBalance;
+        setBalanceText(newBalance);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     }
-  }, [inUse, balanceRef.current]);
+  }, [balanceRef]);
 
   // balance = 20
   return (
     <section
       style={{
-        border: balanceRef.current < price ? `1px solid silver` : ``,
+        border: (insufficientBalance && !bought) ? `1px solid silver` : ``,
       }}
       className={`${
-        inUse || balanceRef.current < price ? `opacity-[70%]` : ``
+        (insufficientBalance && !bought) || !readyForPurchase? `opacity-[50%]` : ``
       } z-[1] w-full mb-[13px] blur-bg rounded-[8px] px-[20px] py-[12px] flex justify-between items-center`}
     >
       <section className="flex justify-start items-center">
@@ -100,51 +110,53 @@ const ItemCard = ({
         </section>
       </section>
 
-      {category == "Multitap" && (
-        <span
-          onClick={handleBuy}
-          className={`font-semibold py-[8px] px-[12px] flex justify-center items-center rounded-[50px] ${
-            balanceRef.current < price ? `bg-[#6c6c6c]` : `bg-light_blue_1`
-          } text-white`}
-        >
-          {inUse ? `${multitapTimer}` : `Buy`}
-        </span>
-      )}
-
-      {category == "Booster" && (
-        <span
-          onClick={handleBuy}
-          className={`font-semibold py-[8px] px-[12px] flex justify-center items-center rounded-[50px] ${
-            balanceRef.current < price ? `bg-[#6c6c6c]` : `bg-light_blue_1`
-          } text-white`}
-        >
-          {inUse ? `${boosterTimer}` : `Buy`}
-        </span>
-      )}
+      <span
+        onClick={handleBuy}
+        className={`font-semibold py-[8px] px-[12px] flex justify-center items-center rounded-[50px] ${
+          insufficientBalance && !bought ? `bg-[#6c6c6c]` : `bg-light_blue_1`
+        } text-white`}
+      >
+        {loading ? (
+          <div className="loader-2"></div>
+        ) : (
+          <>
+            {bought ? (
+              <figure className="relative w-[23px] h-[23px]">
+                <Image
+                  src={"/assets/icons/check.svg"}
+                  sizes="30px"
+                  alt="Check icon"
+                  fill
+                />
+              </figure>
+            ) : (
+              "Buy"
+            )}
+          </>
+        )}
+      </span>
     </section>
   );
 };
 
 const Boost = ({
   balanceRef,
-  multitapActive,
-  setMultitapActive,
-  boosterActive,
-  setBoosterActive,
-  multitapTimer,
   chatId,
   token,
-  boosterTimer,
+  setUserData,
+  multitapActive,
+  booster2Active,
+  booster3Active,
+  booster4Active,
 }: {
-  multitapActive: boolean;
-  setMultitapActive: Dispatch<SetStateAction<boolean>>;
-  boosterActive: "2x" | "3x" | "4x" | null;
-  setBoosterActive: Dispatch<SetStateAction<"2x" | "3x" | "4x" | null>>;
   balanceRef: MutableRefObject<number>;
-  multitapTimer: number;
   chatId: number;
   token: string;
-  boosterTimer: number;
+  setUserData: Dispatch<SetStateAction<UserType>>;
+  multitapActive: boolean;
+  booster2Active: boolean;
+  booster3Active: boolean;
+  booster4Active: boolean;
 }) => {
   return (
     <section className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col justify-start items-center pt-[200px] px-[30px] text-[white] font-[Lexend]">
@@ -153,16 +165,15 @@ const Boost = ({
       </span>
       <section className="w-full flex flex-col items-center">
         <ItemCard
+          bought={multitapActive}
           chatId={chatId}
           token={token}
-          multitapTimer={multitapTimer}
           balanceRef={balanceRef}
           price={20000}
           title="Get yourself a multitap"
           category="Multitap"
-          inUse={multitapActive}
-          expiresIn={28}
-          setMultitapActive={setMultitapActive}
+          setUserData={setUserData}
+          readyForPurchase={true}
         />
       </section>
 
@@ -173,40 +184,40 @@ const Boost = ({
       </span>
       <section className="w-full flex flex-col items-center mb-[200px]">
         <ItemCard
-          boosterTimer={boosterTimer}
+        setUserData={setUserData}
+          bought={booster2Active}
           chatId={chatId}
           token={token}
           balanceRef={balanceRef}
           price={10000}
           title="Booster 2x"
           category="Booster"
-          inUse={boosterActive == "2x"}
-          setBoosterActive={setBoosterActive}
-          boosterType={"2x"}
+          boosterType={2}
+          readyForPurchase={true}
         />
         <ItemCard
-          boosterTimer={boosterTimer}
+        setUserData={setUserData}
           chatId={chatId}
           token={token}
           balanceRef={balanceRef}
           price={15000}
           title="Booster 3x"
           category="Booster"
-          inUse={boosterActive == "3x"}
-          setBoosterActive={setBoosterActive}
-          boosterType={"3x"}
+          readyForPurchase={booster2Active}
+          bought={booster3Active}
+          boosterType={3}
         />
         <ItemCard
-          boosterTimer={boosterTimer}
+        setUserData={setUserData}
+          bought={booster4Active}
           chatId={chatId}
           token={token}
           balanceRef={balanceRef}
           price={20000}
           title="Booster 4x"
           category="Booster"
-          inUse={boosterActive == "4x"}
-          setBoosterActive={setBoosterActive}
-          boosterType={"4x"}
+          readyForPurchase={booster2Active && booster3Active}
+          boosterType={4}
         />
       </section>
     </section>

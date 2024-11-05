@@ -8,7 +8,7 @@ type props = {
 }
 
 const Nav = ({currentPage, setCurrentPage}:props) => {
-  const pages: string[] = ["Earns", "Boost", "Tasks", "Friends"];
+  const pages: string[] = ["Earns", "Boost", "Tasks", "Friends", "Airdrop"];
 
   return (
     <nav className="w-full fixed z-[9] bottom-0 left-0 text-[white] flex flex-col justify-center items-center font-[Lexend]">

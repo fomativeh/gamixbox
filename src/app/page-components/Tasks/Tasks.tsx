@@ -10,8 +10,11 @@ import React, {
   MutableRefObject,
   SetStateAction,
   useCallback,
+  useEffect,
   useState,
 } from "react";
+import { claimDaily } from "@/api/user";
+import { hasClaimedToday } from "@/helpers/hasClaimedToday";
 
 const TaskCard = ({
   image,
@@ -24,31 +27,74 @@ const TaskCard = ({
   chatId,
   token,
   balance,
+  manualVerification,
+  claimTask,
+  lastClaimTime,
 }: {
   image: string;
   id: string;
   title: string;
   status: "Undone" | "Ongoing" | "Done";
   link: string;
-  price: number;
+  price?: number;
   setUserData: Dispatch<SetStateAction<UserType>>;
   chatId: number;
   token: string;
   balance: MutableRefObject<number>;
+  manualVerification?: Boolean;
+  claimTask?: Boolean;
+  lastClaimTime?: string;
 }) => {
   const utils = initUtils();
   const [startLoader, setStartLoader] = useState<boolean>(false);
   const [verifyLoader, setVerifyLoader] = useState<boolean>(false);
+  const [claimLoader, setClaimLoader] = useState<boolean>(false);
+  let dailyBonusClaimed = null;
+  if (lastClaimTime) {
+    dailyBonusClaimed = new Date(lastClaimTime as string);
+  }
 
-  const startTask = useCallback(async (id: string) => {
-    if (link.includes("t.me")) {
-      utils.openTelegramLink(link);
-      // window.open(link, "_blank");
-    } else {
-      //For external links
-      utils.openLink(link);
-      // window.open(link, "_blank");
+  const startTask = useCallback(async () => {
+    if (link) {
+      if (link.includes("t.me")) {
+        utils.openTelegramLink(link);
+        // window.open(link, "_blank");
+      } else {
+        //For external links
+        utils.openLink(link);
+        // window.open(link, "_blank");
+      }
     }
+
+    if (manualVerification) return;
+    if (claimTask) {
+      setClaimLoader(true);
+      let claimRes = await claimDaily(chatId, token, balance.current);
+      if (claimRes?.data) {
+        const { lastDailyLoginClaimTime, newBalance } = claimRes.data;
+        setClaimLoader(false);
+        setUserData((prev) => ({
+          ...prev,
+          lastDailyLoginClaimTime,
+          balance: newBalance,
+        }));
+        //Update balance ref with new balance after task completion
+        balance.current = claimRes.data.balance;
+
+        //Update balance text with DOM manipulation(due to special reasons)
+        let balanceSpan = document.getElementById("displayBalance");
+        if (balanceSpan) {
+          balanceSpan.innerText = `${formatNumberWithCommas(
+            claimRes.data?.balance
+          )}`;
+        }
+        return;
+      } else {
+        return setClaimLoader(false);
+      }
+    }
+
+    //For social tasks
     setStartLoader(true);
     const startTaskRes = await startATask(chatId, id, token);
     if (startTaskRes?.data) {
@@ -59,7 +105,7 @@ const TaskCard = ({
     }
   }, []);
 
-  const completeTask = useCallback(async (id: string) => {
+  const completeTask = useCallback(async () => {
     setVerifyLoader(true);
     const completeTaskRes = await completeATask(
       chatId,
@@ -93,40 +139,61 @@ const TaskCard = ({
           <Image src={image} alt="Task image" fill />
         </figure>
 
-        <section className="flex flex-col items-start">
-          <span className="text-[12px] max-w-[200px] break-words">{title}</span>
-
-          <section className="flex justify-start items-center">
-            <figure className="w-[28px] h-[28px] relative mr-[5px]">
-              <Image src="/assets/icons/Earns.svg" alt="Earn icon" fill />
-            </figure>
-
-            <span className="font-semibold text-[12px]">
-              {formatNumberWithCommas(price)} $GAX
+        {price ? (
+          <section className="flex flex-col items-start">
+            <span className="text-[12px] max-w-[200px] break-words">
+              {title}
             </span>
+
+            <section className="flex justify-start items-center">
+              <figure className="w-[28px] h-[28px] relative mr-[5px]">
+                <Image src="/assets/icons/Earns.svg" alt="Earn icon" fill />
+              </figure>
+
+              <span className="font-semibold text-[12px]">
+                {formatNumberWithCommas(price)} $GAX
+              </span>
+            </section>
           </section>
-        </section>
+        ) : (
+          <span className="text-[12px] max-w-[200px] break-words">{title}</span>
+        )}
       </section>
-      {status == "Undone" && (
-        <span
-          className="font-semibold text-[12px]"
-          onClick={() => startTask(id)}
-        >
-          {startLoader ? <div className="loader-2"></div> : `Go`}
-        </span>
+      {!claimTask && (
+        <>
+          {status == "Undone" && (
+            <span className="font-semibold text-[12px]" onClick={startTask}>
+              {startLoader ? <div className="loader-2"></div> : `Go`}
+            </span>
+          )}
+
+          {status == "Ongoing" && (
+            <span
+              onClick={completeTask}
+              className="font-semibold text-[12px] bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]"
+            >
+              {verifyLoader ? <div className="loader-2"></div> : `Verify`}
+            </span>
+          )}
+
+          {status == "Done" && (
+            <span className="font-semibold text-[12px]">Done</span>
+          )}
+        </>
       )}
 
-      {status == "Ongoing" && (
+      {/* For claim task */}
+      {claimTask && !dailyBonusClaimed && (
         <span
-          onClick={() => completeTask(id)}
+          onClick={startTask}
           className="font-semibold text-[12px] bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]"
         >
-          {verifyLoader ? <div className="loader-2"></div> : `Verify`}
+          {claimLoader ? <div className="loader-2"></div> : `Claim`}
         </span>
       )}
 
-      {status == "Done" && (
-        <span className="font-semibold text-[12px]">Done</span>
+      {claimTask && dailyBonusClaimed && (
+        <span className="font-semibold text-[12px]">Claimed</span>
       )}
     </section>
   );
@@ -140,6 +207,7 @@ const Tasks = ({
   chatId,
   token,
   balance,
+  lastClaimTime,
 }: {
   tasks: TaskType[] | null;
   ongoingTasks: string[];
@@ -148,9 +216,8 @@ const Tasks = ({
   chatId: number;
   token: string;
   balance: MutableRefObject<number>;
+  lastClaimTime: string;
 }) => {
-
-
   return (
     <main className="w-full bg-dark_blue_1 min-h-[100vh] flex flex-col items-center justify-start pt-[30px] px-[30px] font-[Lexend] text-[white]">
       <figure className="w-[140px] h-[140px] relative mb-[20px]">
@@ -178,17 +245,20 @@ const Tasks = ({
               : "Undone";
             return (
               <TaskCard
-              key={i}
+                lastClaimTime={lastClaimTime}
+                key={i}
                 id={each._id}
                 status={status}
                 title={each.title}
                 image={each.image ? each.image : "/assets/images/avatar.svg"}
-                link={each.link}
-                price={each.price}
+                link={each.link as string}
+                price={each.price as number}
                 setUserData={setUserData}
                 chatId={chatId}
                 token={token}
                 balance={balance}
+                manualVerification={each.manualVerification}
+                claimTask={each.claimTask}
               />
             );
           })}

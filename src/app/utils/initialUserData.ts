@@ -15,9 +15,10 @@ export const initialUserData: UserType = {
   completedTasks: [],
   ongoingTasks: [],
   walletAddress: null,
-  activeBooster: 0,
+  booster2: false, booster3: false, booster4: false,
   multitap: false,
   _id: '',          // default empty string
   createdAt: '',    // default empty string
   updatedAt: '',    // default empty string
+  lastDailyLoginClaimTime: null
 };

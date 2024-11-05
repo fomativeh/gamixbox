@@ -22,8 +22,6 @@ import Boost from "./page-components/Boost/Boost";
 import { UserType } from "@/types/UserType";
 import { initialUserData } from "./utils/initialUserData";
 import {
-  endBooster,
-  endMultitap,
   fetchUserAccount,
   updateBalance,
   updateWalletAddress,
@@ -35,16 +33,19 @@ import { TaskType } from "@/types/TaskType";
 import { checkLevel } from "@/helpers/checkLevel";
 import Image from "next/image";
 import Loader from "./components/Loader/Loader";
+import Airdrop from "./components/Airdrop/Airdrop";
 
 export default function Home() {
-  const [closingBehavior] = initClosingBehavior();
-  closingBehavior.enableConfirmation();
-  const viewport = useViewport();
-  const data = useInitData(); // Destructuring initData
-  const chatId = data?.user?.id as number;
-  viewport?.expand();
-  const { initDataRaw } = retrieveLaunchParams();
-  const token = initDataRaw as string;
+  // const [closingBehavior] = initClosingBehavior();
+  // closingBehavior.enableConfirmation();
+  // const viewport = useViewport();
+  // const data = useInitData(); // Destructuring initData
+  // const chatId = data?.user?.id as number;
+  // viewport?.expand();
+  // const { initDataRaw } = retrieveLaunchParams();
+  // const token = initDataRaw as string;
+  let token = "";
+  let chatId = 164587362;
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
   const [userData, setUserData] = useState<UserType>(initialUserData);
@@ -142,58 +143,6 @@ export default function Home() {
     loadTasks();
   }, []);
 
-  const [multitapActive, setMultitapActive] = useState<boolean>(false);
-  const [boosterActive, setBoosterActive] = useState<"2x" | "3x" | "4x" | null>(
-    null
-  );
-
-  const [multitapTimer, setMultitapTimer] = useState<number | null>(null);
-  const [boosterTimer, setBoosterTimer] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (multitapActive) {
-      // Initialize the timer
-      setMultitapTimer(30);
-
-      const multitapCounter = setInterval(() => {
-        setMultitapTimer((prevTimer) => {
-          if (prevTimer === null || prevTimer <= 1) {
-            clearInterval(multitapCounter);
-            setMultitapActive(false);
-            endMultitap(chatId, token);
-            return null;
-          }
-          return prevTimer - 1;
-        });
-      }, 1000);
-
-      // Clear interval when component unmounts or multitapActive changes
-      return () => clearInterval(multitapCounter);
-    }
-  }, [multitapActive]);
-
-  useEffect(() => {
-    if (boosterActive) {
-      // Initialize the timer
-      setBoosterTimer(30);
-
-      const boosterCounter = setInterval(() => {
-        setBoosterTimer((prevTimer) => {
-          if (prevTimer === null || prevTimer <= 1) {
-            clearInterval(boosterCounter);
-            setBoosterActive(null);
-            endBooster(chatId, token);
-            return null;
-          }
-          return prevTimer - 1;
-        });
-      }, 1000);
-
-      // Clear interval when component unmounts or boosterActive changes
-      return () => clearInterval(boosterCounter);
-    }
-  }, [boosterActive]);
-
   useEffect(() => {
     //Check for level updates
     const isUpdateNeeded = checkLevel(
@@ -217,7 +166,7 @@ export default function Home() {
       {userData._id && (
         <>
           <HeaderTop
-            visible={currentPage == "Friends" || currentPage == "Tasks"}
+            hide={currentPage == "Friends" || currentPage == "Tasks" || currentPage=="Airdrop"}
             nickname={userData?.level?.levelNickname as string}
             name={setName(userData)}
             avatar={userData.avatar as string}
@@ -241,18 +190,31 @@ export default function Home() {
             <>
               {userData?.level?.levelCount && (
                 <Earn
-                  multitapActive={multitapActive}
+                  multitapActive={userData.multitap}
                   balanceRef={balanceRef}
                   setUserData={setUserData}
                   level={userData?.level?.levelCount}
-                  boosterActive={boosterActive}
+                  highestBoosterBought={
+                    userData.booster4
+                    ? 4
+                    : userData.booster3
+                    ? 3
+                    : userData.booster2
+                    ? 2
+                    : null
+                  }
                 />
               )}
             </>
           )}
 
+          {currentPage=="Airdrop" && (
+            <Airdrop/>
+          )}
+
           {currentPage === "Tasks" && (
             <Tasks
+              lastClaimTime={userData.lastDailyLoginClaimTime as string}
               balance={balanceRef}
               token={token}
               chatId={chatId}
@@ -263,17 +225,13 @@ export default function Home() {
             />
           )}
           {currentPage === "Boost" && (
-            <Boost
-              chatId={chatId}
-              token={token}
-              multitapTimer={multitapTimer as number}
-              boosterTimer={boosterTimer as number}
-              multitapActive={multitapActive}
-              setMultitapActive={setMultitapActive}
-              balanceRef={balanceRef}
-              boosterActive={boosterActive}
-              setBoosterActive={setBoosterActive}
-            />
+            <Boost chatId={chatId}
+            multitapActive={userData.multitap}
+            booster2Active={userData.booster2}
+            booster3Active={userData.booster3}
+            booster4Active={userData.booster4}
+
+            token={token} balanceRef={balanceRef} setUserData={setUserData} />
           )}
           <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
         </>
@@ -287,7 +245,7 @@ export default function Home() {
 
           <section className="absolute top-0 left-0 flex justify-center items-center w-full h-full">
 
-            <section className="mt-[400px] bg-[#0f0e39f1] rounded-[50%] w-[75vw] h-[75vw] flex justify-center items-center">
+            <section className="mt-[400px] bg-[#0f0e39f1] rounded-[50%] w-[45vw] h-[45vw] flex justify-center items-center">
             <Loader/>
 
             </section>
