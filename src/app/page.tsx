@@ -56,11 +56,11 @@ export default function Home() {
     window.scrollTo(0, 0);
   }, [currentPage]);
 
-  const handleBalanceUpdate = async () => {
+  const handleBalanceUpdate = useCallback(async () => {
     if (userData._id) {
       await updateBalance(chatId, balanceRef.current, token);
     }
-  };
+  },[userData._id])
 
   //
   useEffect(() => {
@@ -145,6 +145,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    console.log("balance before check "+balanceRef.current)
     //Check for level updates
     const isUpdateNeeded = checkLevel(
       balanceRef.current,
@@ -161,11 +162,7 @@ export default function Home() {
     }
   }, [balanceRef.current]);
 
-
-  // useEffect(()=>{
-  //   console.log("I'm causing a re-render")
-  // },[userData?.multitap, balanceRef, setUserData, userData?.level?.levelCount, userData?.booster2, userData?.booster3, userData?.booster4])
-
+  
   return (
     <main className="w-full h-[100vh] relative">
       <TonConnectButton className="hidden" />

@@ -2,18 +2,13 @@ import { TonConnectUI } from "@tonconnect/ui-react";
 import Image from "next/image";
 import React, {
   Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
   useState,
 } from "react";
-import { formatNumberWithCommas } from "fomautils";
 import { formatLevels } from "@/helpers/formatLevels";
 import { levelsForLevelModal } from "@/helpers/checkLevel";
 
 const LevelsModal = ({setLevelsModalOpen}:{setLevelsModalOpen:Dispatch<React.SetStateAction<boolean>>}) => {
   let allLevels = formatLevels(levelsForLevelModal);
-  console.log(allLevels)
   return (
     <section className="absolute top-0 left-0 w-full min-h-[100vh] bg-[#0c0520ce] z-[9]">
       <section className="w-full h-full flex flex-col overflow-y-scroll justify-start items-center py-[30px] px-[5px] relative">

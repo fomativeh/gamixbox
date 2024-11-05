@@ -18,9 +18,10 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   const tapEffectsRef = useRef(tapEffects); // Reference to hold tap effects without causing re-renders
   tapEffectsRef.current = tapEffects; // Sync ref with state
 
-  // useEffect(()=>{
-  //   console.log("Level is "+level)
-  // },[level])
+  useEffect(()=>{
+    console.log("Level is "+level)
+  },[level])
+  
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
