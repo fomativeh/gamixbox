@@ -18,10 +18,6 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   const tapEffectsRef = useRef(tapEffects); // Reference to hold tap effects without causing re-renders
   tapEffectsRef.current = tapEffects; // Sync ref with state
 
-  useEffect(()=>{
-    console.log("Level is "+level)
-  },[level])
-  
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
@@ -41,6 +37,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   };
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Determine the number of taps based on multitapActive and number of fingers detected
     const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
 
     handleIncrement(tapCount);
