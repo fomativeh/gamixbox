@@ -14,8 +14,8 @@ import { levels } from "@/helpers/checkLevel";
 const LevelsModal = ({setLevelsModalOpen}:{setLevelsModalOpen:Dispatch<React.SetStateAction<boolean>>}) => {
   let allLevels = formatLevels(levels);
   return (
-    <section className="absolute top-0 left-0 w-full h-[100vh] bg-[#0c0520ce] z-[9]">
-      <section className="w-full h-full flex flex-col overflow-y-scroll justify-start items-center p-[30px] relative">
+    <section className="absolute top-0 left-0 w-full min-h-[100vh] bg-[#0c0520ce] z-[9]">
+      <section className="w-full h-full flex flex-col overflow-y-scroll justify-start items-center py-[30px] px-[5px] relative">
         <span onClick={()=>setLevelsModalOpen(false)} className="absolute top-[25px] right-[20px] w-[40px] text-[19px] h-[40px] flex justify-center items-center bg-light_blue_1 text-[white] rounded-[50px]">x</span>
         <figure className="w-[130px] min-h-[130px] relative mt-[20px]">
           <Image src="/assets/icons/trophy.svg" alt="Trophy icon" fill />
@@ -26,13 +26,13 @@ const LevelsModal = ({setLevelsModalOpen}:{setLevelsModalOpen:Dispatch<React.Set
             return (
               <section
               key={i}
-                className={`blur-bg w-full flex justify-between items-center rounded-[30px] h-[45px] my-[12px]`}
+                className={`blur-bg w-full flex justify-between items-center rounded-[30px] h-[37px] my-[5px]`}
               >
-                <span className="h-full text-[12px]  px-[20px]   flex justify-center items-center rounded-[inherit] bg-light_blue_1 text-[white]">
+                <span className="h-full text-[12px]  px-[12px]   flex justify-center items-center rounded-[inherit] bg-light_blue_1 text-[white]">
                   Level {each.level}
                 </span>
                 <span className="text-[white]">{each.balanceRange}</span>
-                <span className="h-full text-[12px] px-[20px]   flex justify-center items-center  rounded-[inherit] bg-[white] text-[#7070FF]">
+                <span className="h-full text-[12px] px-[12px]   flex justify-center items-center  rounded-[inherit] bg-[white] text-[#7070FF]">
                   {each.nickname}
                 </span>
               </section>
@@ -74,13 +74,6 @@ const HeaderTop = ({
   };
 
   const [levelsModalOpen, setLevelsModalOpen] = useState<boolean>(false);
-
-  // const balanceTextRef = useRef<HTMLSpanElement>(null)
-  // if(balanceTextRef.current){
-  // balanceTextRef.current.innerHTML = `${formatNumberWithCommas(balance)}`
-  // }
-  // const [balanceToRender, setBalanceToRender] = useState<number>(balance)
-  // useEffect(()=>{setBalanceToRender(balance)},[balance])
 
   return (
     <header

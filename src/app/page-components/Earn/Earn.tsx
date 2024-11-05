@@ -35,27 +35,32 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   };
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
-    // Calculate tap count based on multitap status and number of touches
+    // Determine the number of taps based on multitap and the number of touches
     const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
     handleIncrement(tapCount);
 
-    // Set tap effect position and amount
-    const x = "touches" in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
-    const y = "touches" in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
-    const amount = (highestBoosterBought || 1) * tapCount;
+    // For each finger/tap, create a separate tap effect at the coordinates
+    const incrementAmount = highestBoosterBought || 1;
+    const newTapEffects:{ id: number; x: number; y: number; amount: number }[] = [];
+    for (let i = 0; i < tapCount; i++) {
+      const x = "touches" in e ? e.touches[i].pageX : (e as React.MouseEvent).pageX;
+      const y = "touches" in e ? e.touches[i].pageY : (e as React.MouseEvent).pageY;
+      newTapEffects.push({ id: tapId + i, x, y, amount: incrementAmount });
+    }
 
-    setTapEffects((prev) => [...prev, { id: tapId, x, y, amount }]);
-    setTapId((prev) => prev + 1);
+    setTapEffects((prev) => [...prev, ...newTapEffects]);
+    setTapId((prev) => prev + tapCount);
   };
-
+  
   useEffect(() => {
-    // Remove tap effects after animation duration
+    // Remove the oldest tap effect after the animation duration
     const timer = setTimeout(() => {
-      setTapEffects((effects) => effects.slice(1));
+      setTapEffects((effects) => effects.slice(1)); // Removes the first (oldest) effect
     }, 1700);
-
+  
     return () => clearTimeout(timer);
   }, [tapEffects]);
+  
 
   return (
     <section className="w-full h-[100vh] flex flex-col justify-center items-center">
@@ -71,7 +76,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
 
         {/* Coin */}
         <section className="w-full h-full flex justify-center items-center absolute top-0 left-0">
-          <div className="w-[160px] h-[160px] relative">
+          <div className="w-[250px] h-[250px] relative">
             <img
               onClick={!isTouchDevice ? handleTouchOrClick : undefined}
               onTouchStart={isTouchDevice ? handleTouchOrClick : undefined}

@@ -162,7 +162,7 @@ const TaskCard = ({
       {!claimTask && (
         <>
           {status == "Undone" && (
-            <span className="font-semibold text-[12px]" onClick={startTask}>
+            <span className="font-semibold text-[12px] bg-light_blue_1 py-[7px] px-[16px] rounded-[50px]" onClick={startTask}>
               {startLoader ? <div className="loader-2"></div> : `Go`}
             </span>
           )}
@@ -170,7 +170,7 @@ const TaskCard = ({
           {status == "Ongoing" && (
             <span
               onClick={completeTask}
-              className="font-semibold text-[12px] bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]"
+              className="font-semibold text-[12px] bg-light_blue_1 py-[7px] px-[16px] rounded-[50px]"
             >
               {verifyLoader ? <div className="loader-2"></div> : `Verify`}
             </span>
@@ -186,7 +186,7 @@ const TaskCard = ({
       {claimTask && !dailyBonusClaimed && (
         <span
           onClick={startTask}
-          className="font-semibold text-[12px] bg-light_blue_1 py-[10px] px-[20px] rounded-[50px]"
+          className="font-semibold text-[12px] bg-light_blue_1 py-[7px] px-[16px] rounded-[50px]"
         >
           {claimLoader ? <div className="loader-2"></div> : `Claim`}
         </span>
