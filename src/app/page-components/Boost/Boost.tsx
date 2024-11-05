@@ -73,8 +73,7 @@ const ItemCard = ({
       }
     }
   }, [balanceRef]);
-
-  // balance = 20
+  
   return (
     <section
       style={{

@@ -5,8 +5,8 @@ const Airdrop = () => {
   const [page, setPage] = useState<"Points" | "Withdrawal">("Points");
   const points = ["Earn/Achievements", "Friends", "Presale", "Social media"];
   return (
-    <main className="w-full h-[100vh] flex flex-col justify-start items-center px-[30px] pt-[30px] font-[Lexend] text-[white]">
-      <figure className="w-[180px] h-[180px] relative">
+    <main className="bg-dark_blue_1 pb-[250px] w-full min-h-[100vh] flex flex-col justify-start items-center px-[30px] pt-[30px] font-[Lexend] text-[white]">
+      <figure className="w-[150px] h-[150px] relative">
         <Image src="/assets/images/level-7.svg" alt="Coin image" fill />
       </figure>
 

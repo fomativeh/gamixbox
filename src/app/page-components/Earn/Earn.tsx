@@ -1,4 +1,4 @@
-import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
 import "./Earn.css";
 import { formatNumberWithCommas } from "fomautils";
 import { UserType } from "@/types/UserType";
@@ -15,7 +15,12 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   const [isPressed, setIsPressed] = useState(false);
   const [tapEffects, setTapEffects] = useState<{ id: number; x: number; y: number; amount: number }[]>([]);
   const [tapId, setTapId] = useState(0);
+  const tapEffectsRef = useRef(tapEffects); // Reference to hold tap effects without causing re-renders
+  tapEffectsRef.current = tapEffects; // Sync ref with state
 
+  // useEffect(()=>{
+  //   console.log("Level is "+level)
+  // },[level])
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
@@ -35,32 +40,30 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   };
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
-    // Determine the number of taps based on multitap and the number of touches
     const tapCount = multitapActive && "touches" in e ? e.touches.length : 1;
+
     handleIncrement(tapCount);
 
-    // For each finger/tap, create a separate tap effect at the coordinates
+    const newTapEffects: { id: number; x: number; y: number; amount: number }[] = [];
     const incrementAmount = highestBoosterBought || 1;
-    const newTapEffects:{ id: number; x: number; y: number; amount: number }[] = [];
+
     for (let i = 0; i < tapCount; i++) {
       const x = "touches" in e ? e.touches[i].pageX : (e as React.MouseEvent).pageX;
       const y = "touches" in e ? e.touches[i].pageY : (e as React.MouseEvent).pageY;
-      newTapEffects.push({ id: tapId + i, x, y, amount: incrementAmount });
+      const newTapEffect = { id: tapId + i, x, y, amount: incrementAmount };
+      newTapEffects.push(newTapEffect);
+
+      // Schedule removal after 1700ms
+      setTimeout(() => {
+        setTapEffects((currentEffects) =>
+          currentEffects.filter((effect) => effect.id !== newTapEffect.id)
+        );
+      }, 1700);
     }
 
     setTapEffects((prev) => [...prev, ...newTapEffects]);
     setTapId((prev) => prev + tapCount);
   };
-
-  useEffect(() => {
-    // Remove the oldest tap effect after the animation duration
-    const timer = setTimeout(() => {
-      setTapEffects((effects) => effects.slice(1)); // Removes the first (oldest) effect
-    }, 1700);
-  
-    return () => clearTimeout(timer);
-  }, [tapEffects]);
-  
 
   return (
     <section className="w-full h-[100vh] flex flex-col justify-center items-center">
@@ -76,7 +79,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
 
         {/* Coin */}
         <section className="w-full h-full flex justify-center items-center absolute top-0 left-0">
-          <div className="w-[250px] h-[250px] relative">
+          <div className="w-[200px] h-[200px] relative">
             <img
               onClick={!isTouchDevice ? handleTouchOrClick : undefined}
               onTouchStart={isTouchDevice ? handleTouchOrClick : undefined}

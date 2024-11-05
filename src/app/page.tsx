@@ -30,7 +30,7 @@ import { setName } from "@/helpers/setName";
 import { formatNumberWithCommas } from "fomautils";
 import { fetchTasks } from "@/api/task";
 import { TaskType } from "@/types/TaskType";
-import { checkLevel } from "@/helpers/checkLevel";
+import { checkLevel, levels } from "@/helpers/checkLevel";
 import Image from "next/image";
 import Loader from "./components/Loader/Loader";
 import Airdrop from "./page-components/Airdrop/Airdrop";
@@ -160,6 +160,11 @@ export default function Home() {
       }));
     }
   }, [balanceRef.current]);
+
+
+  useEffect(()=>{
+    console.log("I'm causing a re-render")
+  },[userData?.multitap, balanceRef, setUserData, userData?.level?.levelCount, userData?.booster2, userData?.booster3, userData?.booster4])
 
   return (
     <main className="w-full h-[100vh] relative">
