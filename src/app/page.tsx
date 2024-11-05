@@ -30,22 +30,22 @@ import { setName } from "@/helpers/setName";
 import { formatNumberWithCommas } from "fomautils";
 import { fetchTasks } from "@/api/task";
 import { TaskType } from "@/types/TaskType";
-import { checkLevel, levels } from "@/helpers/checkLevel";
+import { checkLevel } from "@/helpers/checkLevel";
 import Image from "next/image";
 import Loader from "./components/Loader/Loader";
 import Airdrop from "./page-components/Airdrop/Airdrop";
 
 export default function Home() {
-  // const [closingBehavior] = initClosingBehavior();
-  // closingBehavior.enableConfirmation();
-  // const viewport = useViewport();
-  // const data = useInitData(); // Destructuring initData
-  // const chatId = data?.user?.id as number;
-  // viewport?.expand();
-  // const { initDataRaw } = retrieveLaunchParams();
-  // const token = initDataRaw as string;
-  let token = ""
-  let chatId = 1645873626
+  const [closingBehavior] = initClosingBehavior();
+  closingBehavior.enableConfirmation();
+  const viewport = useViewport();
+  const data = useInitData(); // Destructuring initData
+  const chatId = data?.user?.id as number;
+  viewport?.expand();
+  const { initDataRaw } = retrieveLaunchParams();
+  const token = initDataRaw as string;
+  // let token = ""
+  // let chatId = 1645873626
   
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
@@ -162,9 +162,9 @@ export default function Home() {
   }, [balanceRef.current]);
 
 
-  useEffect(()=>{
-    console.log("I'm causing a re-render")
-  },[userData?.multitap, balanceRef, setUserData, userData?.level?.levelCount, userData?.booster2, userData?.booster3, userData?.booster4])
+  // useEffect(()=>{
+  //   console.log("I'm causing a re-render")
+  // },[userData?.multitap, balanceRef, setUserData, userData?.level?.levelCount, userData?.booster2, userData?.booster3, userData?.booster4])
 
   return (
     <main className="w-full h-[100vh] relative">
