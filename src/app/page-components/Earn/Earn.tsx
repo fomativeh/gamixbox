@@ -1,4 +1,4 @@
-import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import "./Earn.css";
 import { formatNumberWithCommas } from "fomautils";
 import { UserType } from "@/types/UserType";
@@ -22,7 +22,7 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
   // Detect if the device is touch-enabled
   const isTouchDevice = "ontouchstart" in window;
 
-  const handleIncrement = (tapCount: number) => {
+  const handleIncrement = useCallback((tapCount: number) => {
     const incrementAmount = highestBoosterBought || 1;
     const totalIncrement = incrementAmount * tapCount;
 
@@ -35,11 +35,12 @@ const Earn = ({ balanceRef, level, setUserData, highestBoosterBought, multitapAc
 
     setIsPressed(true);
     setTimeout(() => setIsPressed(false), 100);
-  };
+  },[balanceRef, highestBoosterBought])
 
   const handleTouchOrClick = (e: React.MouseEvent | React.TouchEvent) => {
     // Determine the number of taps based on multitapActive and number of fingers detected
     const tapCount = multitapActive && "touches" in e ? Math.min(e.touches.length, highestBoosterBought || 1) : 1;
+    tapC.current = tapCount
     
     handleIncrement(tapCount);
   
