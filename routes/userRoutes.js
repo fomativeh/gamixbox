@@ -2,7 +2,8 @@ const express = require("express");
 const handleError = require("../helpers/handleError");
 const User = require("../models/userModel");
 const checkLevel = require("../helpers/checkLevel.js");
-const getUserPhoto = require("../helpers/getPhoto.js")
+const getUserPhoto = require("../helpers/getPhoto.js");
+const isDifferentDay = require("../helpers/isDifferentDay.js");
 const userRoutes = express.Router();
 
 //Fetch a user
@@ -22,13 +23,9 @@ userRoutes.get("/:chatId", async (req, res) => {
       return res.status(200).json({ notFound: true, error: "User not found." });
     }
 
-
     const avatar = await getUserPhoto(chatId);
 
-    res
-      .status(200)
-      .json({ success: true, data: { ...user._doc, avatar } });
-
+    res.status(200).json({ success: true, data: { ...user._doc, avatar } });
   } catch (error) {
     res.status(500).json({ success: false, error });
     handleError(error);
@@ -132,9 +129,7 @@ userRoutes.patch("/coinBalance/:chatId", async (req, res) => {
 
     await user.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Balance updated" });
+    res.status(200).json({ success: true, message: "Balance updated" });
   } catch (error) {
     res.status(500).json({ success: false, error });
     handleError(error);
@@ -144,7 +139,7 @@ userRoutes.patch("/coinBalance/:chatId", async (req, res) => {
 // Handle boosters
 userRoutes.post("/:chatId/booster", async (req, res) => {
   let { chatId } = req.params;
-  let { type, action } = req.body;
+  let { type, currentBalance } = req.body;
 
   try {
     if (!chatId) {
@@ -153,19 +148,17 @@ userRoutes.post("/:chatId/booster", async (req, res) => {
         .json({ success: false, error: "Chat ID is required." });
     }
 
-    if (!action) {
+    if (!currentBalance) {
       return res
         .status(400)
-        .json({ success: false, error: "Booster action is required." });
+        .json({ success: false, error: "Current balance is required." });
     }
 
-    if (action=="ADD" && !type ) {
+    if (!type) {
       return res
         .status(400)
         .json({ success: false, error: "Booster type is required." });
     }
-
- 
 
     chatId = parseInt(chatId);
     type = parseInt(type);
@@ -175,57 +168,83 @@ userRoutes.post("/:chatId/booster", async (req, res) => {
       return res.status(404).json({ notFound: true, error: "User not found." });
     }
 
-    if (action === "REMOVE") {
-      user.activeBooster = 0;
-      await user.save();
-      return res
-        .status(200)
-        .json({ success: true, message: "Booster removed" });
-    } else {
-      let boosterCost;
-      switch (type) {
-        case 2:
-          boosterCost = 10000;
-          break;
-        case 3:
-          boosterCost = 15000;
-          break;
-        case 4:
-          boosterCost = 20000;
-          break;
-        default:
-          return res
-            .status(400)
-            .json({ success: false, error: "Invalid booster type." });
-      }
-
-      if (user.balance < boosterCost) {
-        return res.status(403).json({
-          success: false,
-          data: user,
-          message: `Insufficient balance for booster ${type}x`,
-        });
-      }
-
-      user.balance -= boosterCost;
-      user.activeBooster = type;
-      await user.save();
-      res.status(200).json({
-        success: true,
-        data: user,
-        message: `Booster ${type}x bought!`,
-      });
-
-      // After 30 seconds, remove multitap
-      setTimeout(async () => {
-        try {
-          user.activeBooster = 0;
-          await user.save();
-        } catch (error) {
-          console.error(`Error removing booster ${type}x after 30s:\n`, error);
-        }
-      }, 30000);
+    let boosterCost;
+    switch (type) {
+      case 2:
+        boosterCost = 10000;
+        break;
+      case 3:
+        boosterCost = 15000;
+        break;
+      case 4:
+        boosterCost = 20000;
+        break;
+      case 5:
+        boosterCost = 25000;
+        break;
+      case 6:
+        boosterCost = 30000;
+        break;
+      case 7:
+        boosterCost = 35000;
+        break;
+      case 8:
+        boosterCost = 40000;
+        break;
+      case 9:
+        boosterCost = 45000;
+        break;
+      case 10:
+        boosterCost = 50000;
+        break;
+      default:
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid booster type." });
     }
+
+    if (currentBalance < boosterCost) {
+      return res.status(403).json({
+        success: false,
+        message: `Insufficient balance for booster ${type}x`,
+      });
+    }
+
+    if (user.boosters.includes(type)) {
+      return res.status(403).json({
+        success: false,
+        message: `Booster ${type}x already bought.`,
+      });
+    }
+
+    const expectedBalanceAfterPurchase = currentBalance - boosterCost;
+    const levelChangeNeeded = checkLevel(
+      expectedBalanceAfterPurchase,
+      user.level.levelCount
+    );
+
+    //Change level if needed
+    if (levelChangeNeeded.levelUpdateNeeded) {
+      user.level = levelChangeNeeded.newLevelData;
+    }
+
+    //Deduct balance
+    user.balance = expectedBalanceAfterPurchase;
+
+    //Add booster
+    user.boosters.push(type);
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        balance: user.balance,
+        level: user.level,
+        boosters:user.boosters
+      },
+      message: `Booster ${type}x bought!`,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error });
     handleError(error);
@@ -235,7 +254,8 @@ userRoutes.post("/:chatId/booster", async (req, res) => {
 // Handle multitap
 userRoutes.post("/:chatId/multitap", async (req, res) => {
   let { chatId } = req.params;
-  let { action } = req.body;
+  let { currentBalance } = req.body;
+  let multitapCost = 10000;
 
   try {
     if (!chatId) {
@@ -243,51 +263,122 @@ userRoutes.post("/:chatId/multitap", async (req, res) => {
         .status(400)
         .json({ success: false, error: "Chat ID is required." });
     }
+    chatId = parseInt(chatId);
 
-    if (!action) {
+    if (!currentBalance) {
       return res
         .status(400)
-        .json({ success: false, error: "Booster action is required." });
+        .json({ success: false, error: "Current balance is required." });
     }
-
-    chatId = parseInt(chatId);
 
     const user = await User.findOne({ chatId });
     if (!user) {
       return res.status(404).json({ notFound: true, error: "User not found." });
     }
 
-    if (action === "REMOVE") {
-      user.multitap = false;
-      await user.save();
+    if (currentBalance < multitapCost) {
+      return res.status(403).json({
+        success: false,
+        message: `Insufficient balance for multitap`,
+      });
+    }
+
+    if (user.multitap) {
+      return res.status(403).json({
+        success: false,
+        message: `Multitap already bought`,
+      });
+    }
+
+    const expectedBalanceAfterPurchase = currentBalance - multitapCost;
+    const levelChangeNeeded = checkLevel(
+      expectedBalanceAfterPurchase,
+      user.level.levelCount
+    );
+
+    //Change level if needed
+    if (levelChangeNeeded.levelUpdateNeeded) {
+      user.level = levelChangeNeeded.newLevelData;
+    }
+
+    //Deduct balance
+    user.balance = expectedBalanceAfterPurchase;
+
+    user.multitap = true;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      data: { balance: user.balance, level: user.level, multitap: true },
+      message: "Multitap bought!",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+    handleError(error);
+  }
+});
+
+userRoutes.post("/:chatId/claim", async (req, res) => {
+  let { chatId } = req.params;
+  const { currentBalance } = req.body;
+
+  try {
+    if (!chatId) {
       return res
-        .status(200)
-        .json({ success: true, data: user, message: "Multitap removed." });
-    } else {
-      if (user.balance < 20000) {
-        return res.status(403).json({
-          success: false,
-          data: user,
-          message: `Insufficient balance for multitap`,
-        });
-      }
+        .status(400)
+        .json({ success: false, error: "Chat ID is required." });
+    }
+    chatId = parseInt(chatId);
 
-      user.balance -= 20000;
-      user.multitap = true;
+    if (!currentBalance) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Current balance is required." });
+    }
+
+    const user = await User.findOne({ chatId });
+    if (!user) {
+      return res.status(404).json({ notFound: true, error: "User not found." });
+    }
+
+    //For new users
+    if (!user.lastDailyLoginClaimTime) {
+      user.lastDailyLoginClaimTime = new Date();
+      let expectedBalanceAfterClaim = currentBalance + 10000;
+      user.balance = expectedBalanceAfterClaim;
       await user.save();
-      res
-        .status(200)
-        .json({ success: true, data: user, message: "Multitap bought." });
 
-      // After 30 seconds, remove multitap
-      setTimeout(async () => {
-        try {
-          user.multitap = false;
-          await user.save();
-        } catch (error) {
-          console.error("Error removing multitap after 30s:\n", error);
-        }
-      }, 30000);
+      return res.status(200).json({
+        data: {
+          lastDailyLoginClaimTime: user.lastDailyLoginClaimTime,
+          balance: user.balance,
+        },
+        success: true,
+        error: "Claim successful.",
+      });
+    }
+
+    //For existing users
+    const differentDay = isDifferentDay(user.lastDailyLoginClaimTime);
+    if (differentDay) {
+      user.lastDailyLoginClaimTime = new Date();
+      let expectedBalanceAfterClaim = currentBalance + 10000;
+      user.balance = expectedBalanceAfterClaim;
+      await user.save();
+
+      return res.status(200).json({
+        data: {
+          lastDailyLoginClaimTime: user.lastDailyLoginClaimTime,
+          balance: user.balance,
+        },
+        success: true,
+        error: "Claim successful.",
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, error: "Already claimed today." });
     }
   } catch (error) {
     res.status(500).json({ success: false, error });

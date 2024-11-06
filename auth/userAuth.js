@@ -3,7 +3,6 @@ const TOKEN = process.env.BOT_TOKEN;
 
 // userAuth middleware function
 module.exports = userAuth = async (req, res, next) => {
-  return next();
 
   if (req.path === "/") {
     // Skip auth for the '/' route
@@ -21,8 +20,7 @@ module.exports = userAuth = async (req, res, next) => {
         .json({ success: false, message: "Provide authorization header" });
     }
 
-    // Perform authentication (this is a placeholder, replace with actual logic)
-    const initData = authHeader.split(" ")[1]; // Assuming Bearer token format
+    const initData = authHeader.split(" ")[1]; // Bearer token format
     if (!initData) {
       return res
         .status(401)

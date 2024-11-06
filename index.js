@@ -64,43 +64,6 @@ bot.start(async (ctx) => {
   });
 });
 
-// Listen for and broadcast notifications
-// bot.on("message", async (ctx) => {
-//   const batchSize = 100; // Number of users to process in each batch
-//   let skip = 0;
-//   let hasMoreUsers = true;
-//   let count = 0;
-//   const NOTIFICATIONS_CHANNEL_ID = process.env.NT; // Channel ID
-//   const { message } = ctx;
-//   const messageChatId = message.chat.id;
-
-//   // Check if the message is from the specific notifications channel
-//   if (messageChatId.toString() === NOTIFICATIONS_CHANNEL_ID) {
-//     try {
-//       while (hasMoreUsers) {
-//         const usersBatch = await User.find().skip(skip).limit(batchSize);
-//         if (usersBatch.length > 0) {
-//           for (const user of usersBatch) {
-//             queue.enqueue(async () => {
-//               try {
-//                 await sendNotification(ctx, user.chatId, message);
-//                 ++count;
-//               } catch (error) {
-//                 console.log("Error sending message\n", error);
-//               }
-//             });
-//           }
-//           skip += batchSize;
-//         } else {
-//           hasMoreUsers = false;
-//         }
-//       }
-//     } catch (error) {
-//       console.log("Notification error:\n", error);
-//     }
-//   }
-// });
-
 bot.telegram.setMyCommands([
   { command: "/start", description: "Start the gamibox bot" },
 ]);

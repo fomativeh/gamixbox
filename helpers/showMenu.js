@@ -21,6 +21,18 @@ module.exports = showMenu = async (ctx, isANewUser) => {
               },
             },
           ],
+          [
+            {
+              text: "Subscribe to the channel",
+              url: "https://t.me/gamixbox",
+            },
+          ],
+          [
+            {
+              text: "Follow our X",
+              url: "https://x.com/GAXgamixbox",
+            },
+          ],
         ],
       },
     });

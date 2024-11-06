@@ -15,17 +15,17 @@ const userSchema = new Schema(
     },
     balance: {
       type: Number,
-      default: 0,
+      default: 850000,
     },
 
     level: {
       levelCount: {
         type: Number,
-        default: 1,
+        default: 6,
       },
       levelNickname: {
         type: String,
-        default: "Rookie Rush",
+        default: "Pro Power-Up",
       },
     },
 
@@ -47,14 +47,12 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
-    activeBooster:{
-      type:Number,
-      default:0,
+    boosters:[Number],//Array of booster types
+    multitap: {
+      type: Boolean,
+      default: false,
     },
-    multitap:{
-      type:Boolean,
-      default:false,
-    }
+    lastDailyLoginClaimTime: {type:Date, default:null}
   },
   { timestamps: true }
 );

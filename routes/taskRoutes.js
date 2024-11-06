@@ -15,16 +15,16 @@ TaskRoutes.get("/all", async (req, res) => {
 });
 
 TaskRoutes.post("/new", async (req, res) => {
-  const { title, link, image, price } = req.body;
+  const { title, link, image, price, claimTask } = req.body;
 
-  if (!title || !link) {
+  if (!title) {
     return res
       .status(400)
       .json({ success: false, message: "Please provide all fields" });
   }
 
   try {
-    const newTask = new Task({ title, link, image, price });
+    const newTask = new Task({ title, link, image, price, claimTask });
     await newTask.save();
 
     res.status(201).json({
