@@ -102,7 +102,7 @@ const HeaderTop = ({
           >
             {walletLoaded && (
               <>
-                <figure className="w-[25px] h-[25px] relative mr-[5px] rounded-[50px]">
+                <figure className="w-[25px] h-[25px] relative rounded-[50px]">
                   <Image
                     src="/assets/icons/wallet.svg"
                     alt="Avatar image"
@@ -110,7 +110,7 @@ const HeaderTop = ({
                     fill
                   />
                 </figure>
-                <span className="font-semibold text-[12px]">
+                <span className={`font-semibold text-[12px] ${tonConnectUI.connected && `ml-[5px]`}`}>
                   {tonConnectUI.connected ? (
                     <>
                       {walletAddress.slice(0, 3) +
