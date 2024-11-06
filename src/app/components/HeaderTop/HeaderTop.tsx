@@ -121,7 +121,7 @@ const HeaderTop = ({
                         )}
                     </>
                   ) : (
-                    <>{"Connect Wallet"}</>
+                    <>{""}</>
                   )}
                 </span>
               </>

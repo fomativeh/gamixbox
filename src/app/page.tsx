@@ -45,8 +45,6 @@ export default function Home() {
   viewport?.expand();
   const { initDataRaw } = retrieveLaunchParams();
   const token = initDataRaw as string;
-  // let token = "";
-  // let chatId = 1645873626;
 
   const [currentPage, setCurrentPage] = useState<NavPagesType>("Earns");
   const [userData, setUserData] = useState<UserType>(initialUserData);
@@ -82,7 +80,7 @@ export default function Home() {
         clearInterval(intervalId); // Clear the interval to stop it
       }
     }, 1000);
-    return () => clearInterval(intervalId); // Cleanup
+    return () => clearInterval(intervalId); 
   }, []);
 
   useEffect(() => {
@@ -129,7 +127,7 @@ export default function Home() {
   }, [walletAddress]);
 
   useEffect(() => {
-    handleAddressChange(); // Calls the function whenever it is recreated
+    handleAddressChange(); // Calls the function whenever it is recreated(when wallet address changes)
   }, [handleAddressChange]);
 
   const [tasks, setTasks] = useState<TaskType[] | null>(null);
